@@ -1,0 +1,36 @@
+[submodule "railwayapp-airbyte"]
+	path = railwayapp-airbyte
+	url = git@github.com:vergissberlin/railwayapp-airbyte.git
+[submodule "railwayapp-airflow"]
+	path = railwayapp-airflow
+	url = git@github.com:vergissberlin/railwayapp-airflow.git
+[submodule "railwayapp-codimd"]
+	path = railwayapp-codimd
+	url = git@github.com:vergissberlin/railwayapp-codimd.git
+[submodule "railwayapp-email"]
+	path = railwayapp-email
+	url = git@github.com:vergissberlin/railwayapp-email.git
+[submodule "railwayapp-gitlab"]
+	path = railwayapp-gitlab
+	url = git@github.com:vergissberlin/railwayapp-gitlab.git
+[submodule "railwayapp-grafana"]
+	path = railwayapp-grafana
+	url = git@github.com:vergissberlin/railwayapp-grafana.git
+[submodule "railwayapp-homeassistant"]
+	path = railwayapp-homeassistant
+	url = git@github.com:vergissberlin/railwayapp-homeassistant.git
+[submodule "railwayapp-influxdb"]
+	path = railwayapp-influxdb
+	url = git@github.com:vergissberlin/railwayapp-influxdb.git
+[submodule "railwayapp-mqtt"]
+	path = railwayapp-mqtt
+	url = git@github.com:vergissberlin/railwayapp-mqtt.git
+[submodule "railwayapp-nodered"]
+	path = railwayapp-nodered
+	url = git@github.com:vergissberlin/railwayapp-nodered.git
+[submodule "railwayapp-opensearch"]
+	path = railwayapp-opensearch
+	url = git@github.com:vergissberlin/railwayapp-opensearch.git
+[submodule "railwayapp-typo3"]
+	path = railwayapp-typo3
+	url = git@github.com:vergissberlin/railwayapp-typo3.git
