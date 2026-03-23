@@ -1,23 +1,27 @@
 #!/usr/bin/env node
 
+import { loadRailwayDotenv } from "./load-railway-dotenv.mjs";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { error, header, info, success, summaryBox, table, warn } from "./misc-cli-utils.mjs";
+import { RAILWAY_TEMPLATE_TARGETS } from "./railway-template-targets.mjs";
+
+loadRailwayDotenv();
 
 const GRAPHQL_URL = "https://backboard.railway.app/graphql/v2";
 const WORKSPACE_ID = "ae04726a-4471-430c-85e5-0bb2f83791fb";
 
-const TARGETS = [
-  { projectName: "railwayapp-homeassistant", repo: "vergissberlin/railwayapp-homeassistant", expectedCode: "h29RRq" },
-  { projectName: "railwayapp-email", repo: "vergissberlin/railwayapp-email", expectedCode: "vs5SQO" },
-  { projectName: "railwayapp-gitlab", repo: "vergissberlin/railwayapp-gitlab", expectedCode: "fR9w2h" },
-  { projectName: "railwayapp-opensearch", repo: "vergissberlin/railwayapp-opensearch", expectedCode: "T1QKjt" },
-];
+const TARGETS = RAILWAY_TEMPLATE_TARGETS.map((t) => ({
+  projectName: t.project,
+  repo: t.repo,
+  publishedCode: t.publishedCode,
+}));
 
 function parseArgs(argv) {
   const opts = { json: false };
-  for (const arg of argv) {
+  const args = argv.filter((a) => a !== "--");
+  for (const arg of args) {
     if (arg === "--json") {
       opts.json = true;
       continue;
@@ -146,50 +150,77 @@ async function main() {
     }
   }
 
-  const projects = new Map((projectsData.projects.edges ?? []).map((e) => [e.node.name, e.node]));
   const rows = [];
   const jsonRows = [];
   let passCount = 0;
 
   for (const t of TARGETS) {
-    const p = projects.get(t.projectName);
+    const repoNorm = normalizeRepo(t.repo);
+    let p = null;
+    for (const edge of projectsData.projects.edges ?? []) {
+      const node = edge.node;
+      for (const envEdge of node.environments?.edges ?? []) {
+        for (const siEdge of envEdge.node.serviceInstances?.edges ?? []) {
+          if (normalizeRepo(siEdge.node?.source?.repo ?? "") === repoNorm) {
+            p = node;
+            break;
+          }
+        }
+        if (p) break;
+      }
+      if (p) break;
+    }
     const env = p?.environments?.edges?.find((e) => e.node.name === "production")?.node ?? p?.environments?.edges?.[0]?.node;
     const instance = env?.serviceInstances?.edges?.find((e) => e.node.serviceName === t.projectName)?.node ?? env?.serviceInstances?.edges?.[0]?.node;
     const sourceRepo = normalizeRepo(instance?.source?.repo ?? "");
 
-    const draftMatches = templates
-      .filter((x) => {
-        const repos = (x.repos ?? []).map(normalizeRepo);
-        return x.status === "UNPUBLISHED" && repos.includes(normalizeRepo(t.repo));
-      })
+    const forRepo = templates.filter((x) => (x.repos ?? []).map(normalizeRepo).includes(repoNorm));
+
+    const draftMatches = forRepo
+      .filter((x) => x.status === "UNPUBLISHED")
       .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
 
-    const draftCount = draftMatches.length;
-    const activeDraft = draftMatches[0];
-    const draftCode = activeDraft?.code ?? "-";
+    const publishedMatches = forRepo.filter((x) => x.status === "PUBLISHED");
 
-    const sourceOk = sourceRepo === normalizeRepo(t.repo);
-    const draftOk = draftCount === 1;
-    const codeOk = draftCode === t.expectedCode;
+    const draftCount = draftMatches.length;
+    const publishedCount = publishedMatches.length;
+    const activeDraft = draftMatches[0];
+    const activePublished = publishedMatches[0];
+
+    const draftCode = activeDraft?.code ?? "-";
+    const publishedCode = activePublished?.code ?? "-";
+
+    const sourceOk = sourceRepo === repoNorm;
+    /** One unpublished draft, or exactly one published template (no duplicate repo rows). */
+    const draftOk =
+      (draftCount === 1 && publishedCount === 0) || (draftCount === 0 && publishedCount === 1);
+    const codeOk =
+      publishedCount === 1
+        ? publishedCode === t.publishedCode
+        : draftCount === 1;
     const allOk = sourceOk && draftOk && codeOk;
     if (allOk) passCount += 1;
+
+    const codeLabel =
+      publishedCount === 1 ? `${publishedCode} (published)` : draftCode === "-" ? "-" : `${draftCode} (draft)`;
 
     jsonRows.push({
       project: t.projectName,
       source: sourceOk ? "ok" : "bad",
-      draft: draftOk ? "ok" : `count=${draftCount}`,
-      code: codeOk ? "ok" : `${draftCode} (exp ${t.expectedCode})`,
+      draft: draftOk ? "ok" : `drafts=${draftCount} published=${publishedCount}`,
+      code: codeOk ? "ok" : `${codeLabel} (exp published ${t.publishedCode} or one draft)`,
       ok: allOk,
-      expectedCode: t.expectedCode,
-      actualCode: draftCode,
+      expectedPublishedCode: t.publishedCode,
+      actualDraftCode: draftCode,
+      actualPublishedCode: publishedCode,
       sourceRepo,
     });
 
     rows.push([
       t.projectName,
       sourceOk ? "ok" : "bad",
-      draftOk ? "ok" : `count=${draftCount}`,
-      codeOk ? "ok" : `${draftCode} (exp ${t.expectedCode})`,
+      draftOk ? "ok" : `drafts=${draftCount} pub=${publishedCount}`,
+      codeOk ? "ok" : `mismatch (${codeLabel})`,
     ]);
   }
 

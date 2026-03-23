@@ -4,10 +4,12 @@ import assert from "node:assert/strict";
 import {
   DEFAULT_FOOTER_MARKER,
   applyFooterWithMarker,
+  formatRailwayGraphqlErrors,
   makeBadgeMarkdown,
   parseSubmodulesFromGitmodules,
   replaceFooterContent,
   toHttpsRepoUrl,
+  validateRailwayTemplatePublishDescription,
 } from "../scripts/template-cli-lib.mjs";
 
 test("toHttpsRepoUrl converts SSH GitHub URLs to HTTPS", () => {
@@ -95,4 +97,35 @@ test("makeBadgeMarkdown builds expected shields URL", () => {
     md,
     "[![Apache Airflow](https://img.shields.io/badge/Apache%20Airflow-017CEE?style=for-the-badge&logo=apacheairflow&logoColor=white)](https://github.com/vergissberlin/railwayapp-airflow)"
   );
+});
+
+test("validateRailwayTemplatePublishDescription accepts 25–75 chars", () => {
+  const s = "x".repeat(30);
+  const r = validateRailwayTemplatePublishDescription(s);
+  assert.equal(r.ok, true);
+  assert.equal(r.value, s);
+  assert.equal(r.warnings.length, 0);
+});
+
+test("validateRailwayTemplatePublishDescription rejects short text", () => {
+  const r = validateRailwayTemplatePublishDescription("short");
+  assert.equal(r.ok, false);
+  assert.match(r.error, /got 5/);
+});
+
+test("validateRailwayTemplatePublishDescription truncates long text", () => {
+  const long = "y".repeat(100);
+  const r = validateRailwayTemplatePublishDescription(long);
+  assert.equal(r.ok, true);
+  assert.equal(r.value.length, 75);
+  assert.equal(r.warnings.length, 1);
+});
+
+test("formatRailwayGraphqlErrors joins messages and traceId", () => {
+  const out = formatRailwayGraphqlErrors([
+    { message: "Problem processing request", traceId: "abc", extensions: { code: "X" } },
+  ]);
+  assert.match(out, /Problem processing request/);
+  assert.match(out, /traceId=abc/);
+  assert.match(out, /code=X/);
 });

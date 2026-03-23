@@ -1,19 +1,23 @@
 #!/usr/bin/env node
 
+import { loadRailwayDotenv } from "./load-railway-dotenv.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import { error, header, info, progress, success, summaryBox, table, warn } from "./misc-cli-utils.mjs";
+import { RAILWAY_TEMPLATE_TARGETS } from "./railway-template-targets.mjs";
+
+loadRailwayDotenv();
 
 const RAILWAY_GRAPHQL_URL = "https://backboard.railway.app/graphql/v2";
 const DEFAULT_WORKSPACE_ID = "ae04726a-4471-430c-85e5-0bb2f83791fb";
 
-const TARGETS = [
-  { key: "homeassistant", projectName: "railwayapp-homeassistant", repo: "vergissberlin/railwayapp-homeassistant", desiredName: "Home Assistant" },
-  { key: "email", projectName: "railwayapp-email", repo: "vergissberlin/railwayapp-email", desiredName: "Email Service" },
-  { key: "gitlab", projectName: "railwayapp-gitlab", repo: "vergissberlin/railwayapp-gitlab", desiredName: "GitLab CE" },
-  { key: "opensearch", projectName: "railwayapp-opensearch", repo: "vergissberlin/railwayapp-opensearch", desiredName: "OpenSearch" },
-];
+const TARGETS = RAILWAY_TEMPLATE_TARGETS.map((t) => ({
+  key: t.project.replace(/^railwayapp-/, ""),
+  projectName: t.project,
+  repo: t.repo,
+  desiredName: t.displayName,
+}));
 
 function parseArgs(argv) {
   const opts = {

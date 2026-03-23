@@ -9,9 +9,13 @@
     "test:coverage:check": "node --experimental-test-coverage --test-coverage-include=\"scripts/*.mjs\" --test-coverage-exclude=\"scripts/misc-cli-utils.mjs\" --test-coverage-lines=90 --test-coverage-functions=90 --test tests/**/*.test.mjs",
     "readme:footer": "node scripts/replace-readme-footer.mjs",
     "git:sync:submodules": "node scripts/sync-submodules-git.mjs",
-    "railway:templates:sync-drafts": "node scripts/sync-railway-template-drafts.mjs",
-    "railway:templates:verify-drafts": "node scripts/verify-railway-template-drafts.mjs",
-    "railway:templates:verify-drafts:json": "node scripts/verify-railway-template-drafts.mjs --json"
+    "templates:sync": "node scripts/sync-railway-template-drafts.mjs",
+    "templates:verify": "node scripts/verify-railway-template-drafts.mjs",
+    "templates:verify:json": "node scripts/verify-railway-template-drafts.mjs --json",
+    "templates:publish": "node scripts/publish-railway-template-drafts.mjs",
+    "templates:publish:apply": "node scripts/publish-railway-template-drafts.mjs --apply",
+    "templates:display-names": "node scripts/apply-railway-template-display-names.mjs",
+    "templates:display-names:apply": "node scripts/apply-railway-template-display-names.mjs --apply"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +23,7 @@
   "packageManager": "pnpm@10.26.2",
   "dependencies": {
     "boxen": "^8.0.1",
-    "chalk": "^5.6.2"
+    "chalk": "^5.6.2",
+    "dotenv": "^17.3.1"
   }
 }

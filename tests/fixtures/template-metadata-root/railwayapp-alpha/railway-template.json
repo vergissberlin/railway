@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "project": "railwayapp-alpha",
+  "repo": "vergissberlin/railwayapp-alpha",
+  "displayName": "Alpha",
+  "publishedCode": "alpha",
+  "image": "https://example.com/a.svg",
+  "description": "Deploy Alpha software on Railway with sensible defaults here.",
+  "workspaceAutomation": true
+}

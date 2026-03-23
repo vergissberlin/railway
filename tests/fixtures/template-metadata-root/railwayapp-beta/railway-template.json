@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "repo": "vergissberlin/railwayapp-beta",
+  "displayName": "Beta",
+  "publishedCode": "beta",
+  "image": "https://example.com/b.svg",
+  "description": "Deploy Beta service on Railway with secure defaults and checks.",
+  "workspaceAutomation": false
+}

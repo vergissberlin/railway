@@ -75,3 +75,20 @@ git push
 
 Repository-level automation and instructions must only target Railway templates listed in `.gitmodules`.
 If a repository is not listed there, it is considered out of scope unless explicitly requested.
+
+## Publishing template drafts (API / UI)
+
+If **Publish** on the Railway workspace templates page fails, see **[docs/railway-template-publish.md](./docs/railway-template-publish.md)** for GraphQL limits (`description` length, `traceId`, support path).
+
+### Railway API token (local)
+
+Template scripts read **`RAILWAY_TOKEN`** from a **`.env`** file in this repo root (via `scripts/load-railway-dotenv.mjs`). Copy **`.env.example`** to `.env` and paste your token. `.env` is gitignored — do not commit it.
+
+### Template titles and metadata (marketplace display names)
+
+Friendly software titles, images, descriptions, and expected published slugs live in each template repo as **`railway-template.json`** (see **[docs/railway-template-metadata.md](./docs/railway-template-metadata.md)**). Root scripts aggregate these via **`scripts/railway-template-targets.mjs`** (subset: `workspaceAutomation: true`). To rename Railway projects and recreate + republish templates so the marketplace uses those titles, run:
+
+```bash
+pnpm templates:display-names           # dry-run
+pnpm templates:display-names:apply     # apply (destructive: deletes/recreates each template)
+```

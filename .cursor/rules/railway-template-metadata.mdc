@@ -1,0 +1,34 @@
+---
+description: Railway template metadata in railway-template.json per submodule
+globs: railwayapp-**/railway-template.json
+alwaysApply: true
+---
+
+# Railway template metadata (`railway-template.json`)
+
+## Source of truth
+
+- Each in-scope template repo (`railwayapp-*` submodule) owns **one** `railway-template.json` at its **repository root**.
+- Do **not** duplicate the same fields as a hardcoded list in `scripts/railway-template-targets.mjs` — that file **loads** these JSON files. Update the JSON instead.
+
+## Required shape (`schemaVersion: 1`)
+
+| Field | Rules |
+| --- | --- |
+| `schemaVersion` | Must be `1`. |
+| `project` | Usually `railwayapp-*`; may be omitted if it matches the folder name. |
+| `repo` | `owner/name` on GitHub. |
+| `displayName` | Software title only (e.g. **Home Assistant**), no `railwayapp-` prefix. |
+| `publishedCode` | Expected public slug after publish (marketplace URL segment). |
+| `image` | HTTPS URL (SVG preferred). |
+| `description` | **25–75 characters** after trim — Railway `templatePublish` rejects anything else. |
+| `workspaceAutomation` | `true` only for templates included in root automation (`templates:publish`, `templates:verify`, `templates:display-names`, `templates:sync`). |
+
+## Optional
+
+- `$schema` may point to `docs/railway-template.schema.json` in the monorepo (see `docs/railway-template-metadata.md`).
+
+## When editing
+
+- After changing metadata, run `pnpm test` (root) if loader logic or validation changed.
+- If you add a **new** submodule template, add `railway-template.json` before relying on automation.

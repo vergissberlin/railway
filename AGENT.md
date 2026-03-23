@@ -21,6 +21,7 @@ These rules apply to the whole workspace unless a deeper `AGENT.md` or `agent.md
   - the corresponding documentation
 
 ## Railway Template Workflow
+- Maintain **`railway-template.json`** at the root of each in-scope template repo (metadata for display name, image, `templatePublish` description, published slug). See `docs/railway-template-metadata.md` in the root monorepo.
 - Keep each `railwayapp-*` template deployable as a standalone project.
 - Validate `railway.toml` changes carefully, especially:
   - `startCommand`

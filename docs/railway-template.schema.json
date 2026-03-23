@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/vergissberlin/railway/blob/main/docs/railway-template.schema.json",
+  "title": "Railway template metadata",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "project",
+    "repo",
+    "displayName",
+    "publishedCode",
+    "image",
+    "description",
+    "workspaceAutomation"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "project": {
+      "type": "string",
+      "description": "Railway project folder name (usually railwayapp-*)"
+    },
+    "repo": {
+      "type": "string",
+      "description": "GitHub repository as owner/name"
+    },
+    "displayName": {
+      "type": "string",
+      "description": "Public template title (software name only)"
+    },
+    "publishedCode": {
+      "type": "string",
+      "description": "Expected public slug after publish (Railway marketplace URL segment)"
+    },
+    "image": {
+      "type": "string",
+      "format": "uri",
+      "description": "HTTPS URL to template image (SVG recommended)"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 25,
+      "maxLength": 75,
+      "description": "Short summary for templatePublish (Railway API enforces 25–75 chars)"
+    },
+    "workspaceAutomation": {
+      "type": "boolean",
+      "description": "When true, root-repo scripts (publish/verify/sync display names) include this template"
+    }
+  }
+}

@@ -5,3 +5,8 @@ railway-homeassistant-*.png
 node_modules/
 .pnpm-store/
 
+# Local secrets (RAILWAY_TOKEN, etc.)
+.env
+.env.*
+!.env.example
+
