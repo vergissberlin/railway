@@ -31,11 +31,11 @@ function setupWorkspace() {
   runGit(seedPath, ["commit", "-m", "chore: seed repository"]);
   runGit(seedPath, ["branch", "-M", "main"]);
   runGit(seedPath, ["push", "-u", "origin", "main"]);
+  runGit(tmpRoot, ["--git-dir", remotePath, "symbolic-ref", "HEAD", "refs/heads/main"]);
 
-  runGit(workspacePath, ["clone", remotePath, submodulePath]);
+  runGit(workspacePath, ["clone", "--branch", "main", remotePath, submodulePath]);
   runGit(submodulePath, ["config", "user.email", "test@example.com"]);
   runGit(submodulePath, ["config", "user.name", "Test Bot"]);
-  runGit(submodulePath, ["checkout", "-B", "main"]);
   runGit(submodulePath, ["branch", "--set-upstream-to=origin/main", "main"]);
 
   fs.writeFileSync(
