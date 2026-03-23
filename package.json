@@ -8,7 +8,10 @@
     "test:coverage": "node --experimental-test-coverage --test-coverage-include=\"scripts/*.mjs\" --test-coverage-exclude=\"scripts/misc-cli-utils.mjs\" --test tests/**/*.test.mjs",
     "test:coverage:check": "node --experimental-test-coverage --test-coverage-include=\"scripts/*.mjs\" --test-coverage-exclude=\"scripts/misc-cli-utils.mjs\" --test-coverage-lines=90 --test-coverage-functions=90 --test tests/**/*.test.mjs",
     "readme:footer": "node scripts/replace-readme-footer.mjs",
-    "git:sync:submodules": "node scripts/sync-submodules-git.mjs"
+    "git:sync:submodules": "node scripts/sync-submodules-git.mjs",
+    "railway:templates:sync-drafts": "node scripts/sync-railway-template-drafts.mjs",
+    "railway:templates:verify-drafts": "node scripts/verify-railway-template-drafts.mjs",
+    "railway:templates:verify-drafts:json": "node scripts/verify-railway-template-drafts.mjs --json"
   },
   "keywords": [],
   "author": "",
