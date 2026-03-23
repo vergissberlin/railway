@@ -1,6 +1,6 @@
 # Railway Templates Monorepo (Submodule Meta Repo)
 
-![Railway Templates Banner](./header-banner.svg)
+![Railway Templates Banner](./header-banner.png)
 
 This repository is the root meta repository for the `vergissberlin` Railway templates.
 Each `railwayapp-*` folder is an independent Git repository included here as a Git submodule.
