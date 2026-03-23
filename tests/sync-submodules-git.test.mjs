@@ -7,6 +7,10 @@ import { execFileSync, spawnSync } from "node:child_process";
 
 const SCRIPT_PATH = path.resolve("scripts/sync-submodules-git.mjs");
 
+function stripAnsi(text) {
+  return text.replace(/\x1B\[[0-9;]*m/g, "");
+}
+
 function runGit(cwd, args) {
   return execFileSync("git", args, { cwd, encoding: "utf8", stdio: "pipe" }).trim();
 }
@@ -143,7 +147,7 @@ test("sync-submodules can skip non-git listed submodule", () => {
     encoding: "utf8",
   });
 
-  assert.match(out, /\[SKIP\] railwayapp-ghost/);
+  assert.match(stripAnsi(out), /\[SKIP\]\s+railwayapp-ghost/);
 });
 
 test("sync-submodules supports --no-rebase pull flow", () => {
