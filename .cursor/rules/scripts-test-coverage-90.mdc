@@ -1,0 +1,30 @@
+---
+description: Require at least 90 percent test coverage for scripts
+alwaysApply: true
+---
+
+# Script Test Coverage Minimum
+
+For any change in script logic, maintain at least 90% automated test coverage for the affected script module(s).
+
+## Required
+
+- Add or update tests whenever script behavior changes.
+- Cover happy path, error path, and argument parsing where relevant.
+- Keep coverage at or above 90% for touched script modules before finalizing changes.
+- If coverage drops, add targeted tests in the same change.
+
+## Verification
+
+- Run the project test command and verify coverage requirements are met.
+- If exact coverage tooling is unavailable, add explicit tests for all changed branches and note the limitation.
+
+## Example
+
+```javascript
+// For changed CLI argument parsing:
+// - tests valid args
+// - tests unknown args
+// - tests default values
+// - tests forwarded "--" args
+```

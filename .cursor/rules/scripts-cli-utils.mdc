@@ -1,0 +1,34 @@
+---
+description: Enforce shared CLI utils usage in scripts
+globs: scripts/**/*.mjs
+alwaysApply: false
+---
+
+# Script CLI Utils Standard
+
+When creating or updating files in `scripts/`, always use shared helpers from `scripts/misc-cli-utils.mjs` for user-facing output.
+
+## Required
+
+- Import and use `info`, `warn`, `error`, `success`, `progress`, and `summaryBox` where relevant.
+- Keep output consistent with existing script style (status labels, summary, and clear error reporting).
+- Prefer shared helper functions over direct `console.log` for operational messages.
+
+## Allowed
+
+- `console.log` is acceptable for help text blocks and raw machine-readable output only.
+
+## Example
+
+```javascript
+import { info, error, success } from "./misc-cli-utils.mjs";
+
+info("Starting template sync");
+try {
+  // run logic
+  success("Template sync completed");
+} catch (err) {
+  error(err.message);
+  process.exit(1);
+}
+```
