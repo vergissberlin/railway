@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node --test tests/**/*.test.mjs",
-    "readme:footer": "node scripts/replace-readme-footer.mjs",
-    "readme:footer:badges": "node scripts/update-template-footers.mjs",
-    "readme:header:templates": "node scripts/generate-template-headers.mjs"
+    "readme:footer": "node scripts/replace-readme-footer.mjs"
   },
   "keywords": [],
   "author": "",

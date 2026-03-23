@@ -22,12 +22,14 @@ function parseArgs(argv) {
     marker: "<!-- footer -->",
     readmeName: "README.md",
     dryRun: false,
-    footerFile: "",
+    footerFile: "footer.md",
   };
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
-    if (arg === "--root") {
+    if (arg === "--") {
+      continue;
+    } else if (arg === "--root") {
       args.root = argv[++i] || args.root;
     } else if (arg === "--marker") {
       args.marker = argv[++i] || args.marker;
@@ -45,19 +47,16 @@ function parseArgs(argv) {
     }
   }
 
-  if (!args.footerFile) {
-    throw new Error("Missing required argument: --footer-file <path>");
-  }
-
   return args;
 }
 
 function printHelp() {
   console.log(`Usage:
-  node scripts/replace-readme-footer.mjs --footer-file <path> [options]
+  node scripts/replace-readme-footer.mjs [options]
 
 Options:
   --root <path>       Root directory (default: current directory)
+  --footer-file <path> Footer file (default: "footer.md")
   --marker <text>     Footer marker (default: "<!-- footer -->")
   --readme <name>     README filename (default: "README.md")
   --dry-run           Print changes without writing files
