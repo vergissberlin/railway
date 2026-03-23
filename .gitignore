@@ -1,3 +1,7 @@
 # Local debug screenshots
 railway-homeassistant-*.png
 
+# Node / pnpm local artifacts
+node_modules/
+.pnpm-store/
+
