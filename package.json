@@ -1,0 +1,15 @@
+{
+  "name": "railway",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "readme:footer": "node scripts/replace-readme-footer.js",
+    "readme:footer:badges": "node scripts/update-template-footers.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.26.2"
+}
