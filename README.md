@@ -21,8 +21,13 @@ Each `railwayapp-*` folder is an independent Git repository included here as a G
 - `railwayapp-grafana`
 - `railwayapp-homeassistant`
 - `railwayapp-influxdb`
+- `railwayapp-mongodb`
 - `railwayapp-mqtt`
+- `railwayapp-mysql`
+- `railwayapp-n8n`
 - `railwayapp-nodered`
+- `railwayapp-nodejs`
+- `railwayapp-postgresql`
 - `railwayapp-opensearch`
 - `railwayapp-typo3`
 

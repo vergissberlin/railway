@@ -34,3 +34,18 @@
 [submodule "railwayapp-typo3"]
 	path = railwayapp-typo3
 	url = git@github.com:vergissberlin/railwayapp-typo3.git
+[submodule "railwayapp-postgresql"]
+	path = railwayapp-postgresql
+	url = git@github.com:vergissberlin/railwayapp-postgresql.git
+[submodule "railwayapp-mysql"]
+	path = railwayapp-mysql
+	url = git@github.com:vergissberlin/railwayapp-mysql.git
+[submodule "railwayapp-mongodb"]
+	path = railwayapp-mongodb
+	url = git@github.com:vergissberlin/railwayapp-mongodb.git
+[submodule "railwayapp-n8n"]
+	path = railwayapp-n8n
+	url = git@github.com:vergissberlin/railwayapp-n8n.git
+[submodule "railwayapp-nodejs"]
+	path = railwayapp-nodejs
+	url = git@github.com:vergissberlin/railwayapp-nodejs.git

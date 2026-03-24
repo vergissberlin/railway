@@ -54,6 +54,31 @@ const CONFIG = {
     subtitle: "Railway Template",
     logoFile: "logo-influxdb.png",
   },
+  "railwayapp-mongodb": {
+    title: "MongoDB",
+    subtitle: "Railway Template",
+    customIcon: "mongodb",
+  },
+  "railwayapp-mysql": {
+    title: "MySQL",
+    subtitle: "Railway Template",
+    customIcon: "mysql",
+  },
+  "railwayapp-n8n": {
+    title: "n8n",
+    subtitle: "Railway Template",
+    customIcon: "n8n",
+  },
+  "railwayapp-nodejs": {
+    title: "Node.js",
+    subtitle: "Railway Template",
+    customIcon: "nodejs",
+  },
+  "railwayapp-postgresql": {
+    title: "PostgreSQL",
+    subtitle: "Railway Template",
+    customIcon: "postgresql",
+  },
   "railwayapp-mqtt": {
     title: "Mosquitto MQTT",
     subtitle: "Railway Template",
@@ -101,6 +126,36 @@ function customIconSvg(name) {
       <circle cx="140" cy="98" r="14" fill="#991B1B"/>
       <circle cx="178" cy="124" r="14" fill="#B91C1C"/>
       <path d="M116 117 L126 109 M154 109 L164 117 M116 131 L164 131" stroke="#FCA5A5" stroke-width="4" fill="none" stroke-linecap="round"/>
+    `;
+  }
+  if (name === "postgresql") {
+    return `
+      <circle cx="140" cy="124" r="48" fill="#336791" opacity="0.95"/>
+      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="26" font-weight="700">PG</text>
+    `;
+  }
+  if (name === "mysql") {
+    return `
+      <circle cx="140" cy="124" r="48" fill="#4479A1" opacity="0.95"/>
+      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="22" font-weight="700">SQL</text>
+    `;
+  }
+  if (name === "mongodb") {
+    return `
+      <circle cx="140" cy="124" r="48" fill="#47A248" opacity="0.95"/>
+      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="26" font-weight="700">M</text>
+    `;
+  }
+  if (name === "n8n") {
+    return `
+      <rect x="92" y="88" width="96" height="72" rx="16" fill="#EA4B71" opacity="0.95"/>
+      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="24" font-weight="700">n8n</text>
+    `;
+  }
+  if (name === "nodejs") {
+    return `
+      <circle cx="140" cy="124" r="48" fill="#339933" opacity="0.95"/>
+      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="26" font-weight="700">JS</text>
     `;
   }
   return "";

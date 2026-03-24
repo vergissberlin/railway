@@ -43,19 +43,77 @@ const TEMPLATE_BADGE_CONFIG = {
     color: "22ADF6",
     logo: "influxdb",
   },
+  "railwayapp-mongodb": {
+    label: "MongoDB",
+    color: "47A248",
+    logo: "mongodb",
+  },
   "railwayapp-mqtt": {
     label: "Mosquitto MQTT",
     color: "3C5280",
     logo: "eclipsemosquitto",
   },
+  "railwayapp-mysql": {
+    label: "MySQL",
+    color: "4479A1",
+    logo: "mysql",
+  },
+  "railwayapp-n8n": { label: "n8n", color: "EA4B71", logo: "n8n" },
   "railwayapp-nodered": { label: "Node-RED", color: "8F0000", logo: "nodered" },
+  "railwayapp-nodejs": {
+    label: "Node.js",
+    color: "339933",
+    logo: "nodedotjs",
+  },
   "railwayapp-opensearch": {
     label: "OpenSearch",
     color: "005EB8",
     logo: "opensearch",
   },
+  "railwayapp-postgresql": {
+    label: "PostgreSQL",
+    color: "4169E1",
+    logo: "postgresql",
+  },
   "railwayapp-typo3": { label: "TYPO3 CMS", color: "FF8700", logo: "typo3" },
 };
+
+/** Order of badges in the shared README footer (cross-links to all template repos). */
+const FOOTER_BADGE_ORDER = [
+  "railwayapp-airbyte",
+  "railwayapp-airflow",
+  "railwayapp-codimd",
+  "railwayapp-email",
+  "railwayapp-gitlab",
+  "railwayapp-grafana",
+  "railwayapp-homeassistant",
+  "railwayapp-influxdb",
+  "railwayapp-mongodb",
+  "railwayapp-mqtt",
+  "railwayapp-mysql",
+  "railwayapp-n8n",
+  "railwayapp-nodered",
+  "railwayapp-nodejs",
+  "railwayapp-opensearch",
+  "railwayapp-postgresql",
+  "railwayapp-typo3",
+];
+
+function buildFullFooterMarkdown(submodules) {
+  const urlByPath = Object.fromEntries(
+    submodules.map((s) => [s.path, s.repoUrl])
+  );
+  const parts = [];
+  for (const p of FOOTER_BADGE_ORDER) {
+    const cfg = TEMPLATE_BADGE_CONFIG[p];
+    const url = urlByPath[p];
+    if (!cfg || !url) {
+      throw new Error(`Missing badge config or submodule URL for ${p}`);
+    }
+    parts.push(makeBadgeMarkdown(cfg, url));
+  }
+  return `---\n\n${parts.join(" ")}`;
+}
 
 function parseArgs(argv) {
   const args = {
@@ -122,8 +180,8 @@ function main() {
     }
 
     const current = readTextNormalized(readmePath);
-    const badgeLine = makeBadgeMarkdown(cfg, submodule.repoUrl);
-    const next = applyFooterWithMarker(current, badgeLine, args.marker);
+    const footerMarkdown = buildFullFooterMarkdown(submodules);
+    const next = applyFooterWithMarker(current, footerMarkdown, args.marker);
 
     if (next === current) {
       unchanged += 1;
