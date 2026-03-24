@@ -49,3 +49,18 @@
 [submodule "railwayapp-nodejs"]
 	path = railwayapp-nodejs
 	url = git@github.com:vergissberlin/railwayapp-nodejs.git
+[submodule "railwayapp-redis"]
+	path = railwayapp-redis
+	url = git@github.com:vergissberlin/railwayapp-redis.git
+[submodule "railwayapp-flask"]
+	path = railwayapp-flask
+	url = git@github.com:vergissberlin/railwayapp-flask.git
+[submodule "railwayapp-django"]
+	path = railwayapp-django
+	url = git@github.com:vergissberlin/railwayapp-django.git
+[submodule "railwayapp-fastapi"]
+	path = railwayapp-fastapi
+	url = git@github.com:vergissberlin/railwayapp-fastapi.git
+[submodule "railwayapp-flowise"]
+	path = railwayapp-flowise
+	url = git@github.com:vergissberlin/railwayapp-flowise.git

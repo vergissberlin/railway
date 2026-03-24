@@ -29,6 +29,11 @@ const CONFIG = {
     subtitle: "Railway Template",
     logoFile: "codimd-logo.png",
   },
+  "railwayapp-django": {
+    title: "Django",
+    subtitle: "Railway Template",
+    customIcon: "django",
+  },
   "railwayapp-email": {
     title: "Email Service",
     subtitle: "Railway Template",
@@ -54,6 +59,21 @@ const CONFIG = {
     subtitle: "Railway Template",
     logoFile: "logo-influxdb.png",
   },
+  "railwayapp-fastapi": {
+    title: "FastAPI",
+    subtitle: "Railway Template",
+    customIcon: "fastapi",
+  },
+  "railwayapp-flask": {
+    title: "Flask",
+    subtitle: "Railway Template",
+    customIcon: "flask",
+  },
+  "railwayapp-flowise": {
+    title: "Flowise",
+    subtitle: "Railway Template",
+    customIcon: "flowise",
+  },
   "railwayapp-mongodb": {
     title: "MongoDB",
     subtitle: "Railway Template",
@@ -78,6 +98,11 @@ const CONFIG = {
     title: "PostgreSQL",
     subtitle: "Railway Template",
     customIcon: "postgresql",
+  },
+  "railwayapp-redis": {
+    title: "Redis",
+    subtitle: "Railway Template",
+    customIcon: "redis",
   },
   "railwayapp-mqtt": {
     title: "Mosquitto MQTT",
@@ -156,6 +181,36 @@ function customIconSvg(name) {
     return `
       <circle cx="140" cy="124" r="48" fill="#339933" opacity="0.95"/>
       <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="26" font-weight="700">JS</text>
+    `;
+  }
+  if (name === "redis") {
+    return `
+      <circle cx="140" cy="124" r="48" fill="#DC382D" opacity="0.95"/>
+      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="26" font-weight="700">R</text>
+    `;
+  }
+  if (name === "flask") {
+    return `
+      <circle cx="140" cy="124" r="48" fill="#3fad48" opacity="0.95"/>
+      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="26" font-weight="700">F</text>
+    `;
+  }
+  if (name === "django") {
+    return `
+      <rect x="92" y="88" width="96" height="72" rx="14" fill="#092E20" opacity="0.95"/>
+      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="22" font-weight="700">Dj</text>
+    `;
+  }
+  if (name === "fastapi") {
+    return `
+      <circle cx="140" cy="124" r="48" fill="#009688" opacity="0.95"/>
+      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="22" font-weight="700">FA</text>
+    `;
+  }
+  if (name === "flowise") {
+    return `
+      <rect x="88" y="84" width="104" height="80" rx="18" fill="#4F46E5" opacity="0.95"/>
+      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="26" font-weight="700">Fi</text>
     `;
   }
   return "";

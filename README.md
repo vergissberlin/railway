@@ -16,7 +16,11 @@ Each `railwayapp-*` folder is an independent Git repository included here as a G
 - `railwayapp-airbyte`
 - `railwayapp-airflow`
 - `railwayapp-codimd`
+- `railwayapp-django`
 - `railwayapp-email`
+- `railwayapp-fastapi`
+- `railwayapp-flask`
+- `railwayapp-flowise`
 - `railwayapp-gitlab`
 - `railwayapp-grafana`
 - `railwayapp-homeassistant`
@@ -27,8 +31,9 @@ Each `railwayapp-*` folder is an independent Git repository included here as a G
 - `railwayapp-n8n`
 - `railwayapp-nodered`
 - `railwayapp-nodejs`
-- `railwayapp-postgresql`
 - `railwayapp-opensearch`
+- `railwayapp-postgresql`
+- `railwayapp-redis`
 - `railwayapp-typo3`
 
 ## Clone and initialize

@@ -26,6 +26,7 @@ const TEMPLATE_BADGE_CONFIG = {
     logo: "apacheairflow",
   },
   "railwayapp-codimd": { label: "CodiMD", color: "0F766E", logo: "markdown" },
+  "railwayapp-django": { label: "Django", color: "092E20", logo: "django" },
   "railwayapp-email": {
     label: "Email Service",
     color: "2563EB",
@@ -42,6 +43,13 @@ const TEMPLATE_BADGE_CONFIG = {
     label: "InfluxDB",
     color: "22ADF6",
     logo: "influxdb",
+  },
+  "railwayapp-fastapi": { label: "FastAPI", color: "009688", logo: "fastapi" },
+  "railwayapp-flask": { label: "Flask", color: "3fad48", logo: "flask" },
+  "railwayapp-flowise": {
+    label: "Flowise",
+    color: "4F46E5",
+    logo: "nodedotjs",
   },
   "railwayapp-mongodb": {
     label: "MongoDB",
@@ -75,6 +83,11 @@ const TEMPLATE_BADGE_CONFIG = {
     color: "4169E1",
     logo: "postgresql",
   },
+  "railwayapp-redis": {
+    label: "Redis",
+    color: "DC382D",
+    logo: "redis",
+  },
   "railwayapp-typo3": { label: "TYPO3 CMS", color: "FF8700", logo: "typo3" },
 };
 
@@ -83,7 +96,11 @@ const FOOTER_BADGE_ORDER = [
   "railwayapp-airbyte",
   "railwayapp-airflow",
   "railwayapp-codimd",
+  "railwayapp-django",
   "railwayapp-email",
+  "railwayapp-fastapi",
+  "railwayapp-flask",
+  "railwayapp-flowise",
   "railwayapp-gitlab",
   "railwayapp-grafana",
   "railwayapp-homeassistant",
@@ -96,6 +113,7 @@ const FOOTER_BADGE_ORDER = [
   "railwayapp-nodejs",
   "railwayapp-opensearch",
   "railwayapp-postgresql",
+  "railwayapp-redis",
   "railwayapp-typo3",
 ];
 
