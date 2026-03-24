@@ -8,6 +8,7 @@ Each template submodule stores **`railway-template.json`** at its repository roo
 | --- | --- |
 | `schemaVersion` | Must be `1` for the current format. |
 | `project` | Railway project folder name (usually `railwayapp-*`). Defaults to the parent directory name if omitted. |
+| `railwayProjectName` | Optional. Exact name of the project in the Railway workspace when it differs from `project`. If omitted, automation scripts also try matching `project`, then `displayName` (exact and case-insensitive). |
 | `repo` | GitHub repository as `owner/name`. |
 | `displayName` | Public template title (software name only, e.g. **Home Assistant**). |
 | `publishedCode` | Expected slug after `templatePublish` (Railway marketplace URL segment). |

@@ -6,10 +6,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  findWorkspaceProjectByName,
   getRailwayTemplateMetadata,
   getRailwayTemplateTargets,
   loadRailwayTemplateMetadataFromDisk,
   normalizeRailwayTemplateMetadata,
+  workspaceProjectMatchCandidatesFromMeta,
 } from "../scripts/railway-template-targets.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -31,6 +33,113 @@ test("normalizeRailwayTemplateMetadata maps fields and validates description len
   );
   assert.equal(meta.project, "railwayapp-alpha");
   assert.equal(meta.workspaceAutomation, true);
+});
+
+test("normalizeRailwayTemplateMetadata maps railwayProjectName when set", () => {
+  const meta = normalizeRailwayTemplateMetadata(
+    {
+      schemaVersion: 1,
+      project: "railwayapp-email",
+      railwayProjectName: "Email",
+      repo: "vergissberlin/railwayapp-email",
+      displayName: "Email App",
+      publishedCode: "email",
+      image: "https://example.com/e.svg",
+      description: "Deploy Email software on Railway with sensible defaults here.",
+      workspaceAutomation: true,
+    },
+    "railwayapp-email"
+  );
+  assert.equal(meta.railwayProjectName, "Email");
+});
+
+test("normalizeRailwayTemplateMetadata leaves railwayProjectName empty when absent", () => {
+  const meta = normalizeRailwayTemplateMetadata(
+    {
+      schemaVersion: 1,
+      project: "railwayapp-alpha",
+      repo: "vergissberlin/railwayapp-alpha",
+      displayName: "Alpha",
+      publishedCode: "alpha",
+      image: "https://example.com/a.svg",
+      description: "Deploy Alpha software on Railway with sensible defaults here.",
+      workspaceAutomation: true,
+    },
+    "railwayapp-alpha"
+  );
+  assert.equal(meta.railwayProjectName, "");
+});
+
+test("workspaceProjectMatchCandidatesFromMeta orders and dedupes", () => {
+  const meta = normalizeRailwayTemplateMetadata(
+    {
+      schemaVersion: 1,
+      project: "railwayapp-email",
+      railwayProjectName: "Email",
+      repo: "o/r",
+      displayName: "Email",
+      publishedCode: "e",
+      image: "https://example.com/e.svg",
+      description: "Deploy Email software on Railway with sensible defaults here.",
+      workspaceAutomation: true,
+    },
+    "railwayapp-email"
+  );
+  assert.deepEqual(workspaceProjectMatchCandidatesFromMeta(meta), ["Email", "railwayapp-email"]);
+});
+
+test("findWorkspaceProjectByName matches exact then case-insensitive", () => {
+  const projects = [
+    { id: "1", name: "railwayapp-foo" },
+    { id: "2", name: "Email" },
+  ];
+  const meta = normalizeRailwayTemplateMetadata(
+    {
+      schemaVersion: 1,
+      project: "railwayapp-email",
+      repo: "o/r",
+      displayName: "Email",
+      publishedCode: "e",
+      image: "https://example.com/e.svg",
+      description: "Deploy Email software on Railway with sensible defaults here.",
+      workspaceAutomation: true,
+    },
+    "railwayapp-email"
+  );
+  assert.equal(findWorkspaceProjectByName(projects, meta)?.id, "2");
+
+  const metaCase = normalizeRailwayTemplateMetadata(
+    {
+      schemaVersion: 1,
+      project: "railwayapp-email",
+      repo: "o/r",
+      displayName: "email",
+      publishedCode: "e",
+      image: "https://example.com/e.svg",
+      description: "Deploy Email software on Railway with sensible defaults here.",
+      workspaceAutomation: true,
+    },
+    "railwayapp-email"
+  );
+  const projectsLower = [{ id: "3", name: "EMAIL" }];
+  assert.equal(findWorkspaceProjectByName(projectsLower, metaCase)?.id, "3");
+});
+
+test("findWorkspaceProjectByName returns null when nothing matches", () => {
+  const meta = normalizeRailwayTemplateMetadata(
+    {
+      schemaVersion: 1,
+      project: "railwayapp-z",
+      repo: "o/r",
+      displayName: "Z",
+      publishedCode: "z",
+      image: "https://example.com/z.svg",
+      description: "Deploy Z software on Railway with sensible defaults here ok.",
+      workspaceAutomation: true,
+    },
+    "railwayapp-z"
+  );
+  assert.equal(findWorkspaceProjectByName([{ id: "1", name: "other" }], meta), null);
 });
 
 test("normalizeRailwayTemplateMetadata throws on wrong schemaVersion", () => {

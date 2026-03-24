@@ -10,6 +10,7 @@
     "readme:footer": "node scripts/replace-readme-footer.mjs",
     "git:sync:submodules": "node scripts/sync-submodules-git.mjs",
     "templates:sync": "node scripts/sync-railway-template-drafts.mjs",
+    "templates:sync:apply": "node scripts/sync-railway-template-drafts.mjs --apply --recreate-missing",
     "templates:verify": "node scripts/verify-railway-template-drafts.mjs",
     "templates:verify:json": "node scripts/verify-railway-template-drafts.mjs --json",
     "templates:publish": "node scripts/publish-railway-template-drafts.mjs",

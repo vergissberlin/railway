@@ -23,6 +23,10 @@
       "type": "string",
       "description": "Railway project folder name (usually railwayapp-*)"
     },
+    "railwayProjectName": {
+      "type": "string",
+      "description": "Optional. Exact Railway workspace project name when it differs from project (overrides fallback matching)"
+    },
     "repo": {
       "type": "string",
       "description": "GitHub repository as owner/name"

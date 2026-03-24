@@ -5,7 +5,11 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import { error, header, info, progress, success, summaryBox, table, warn } from "./misc-cli-utils.mjs";
-import { getRailwayTemplateTargets } from "./railway-template-targets.mjs";
+import {
+  findWorkspaceProjectByName,
+  getRailwayTemplateTargets,
+  workspaceProjectMatchCandidatesFromMeta,
+} from "./railway-template-targets.mjs";
 
 loadRailwayDotenv();
 
@@ -17,6 +21,7 @@ const TARGETS = getRailwayTemplateTargets().map((t) => ({
   projectName: t.project,
   repo: t.repo,
   desiredName: t.displayName,
+  meta: t,
 }));
 
 function parseArgs(argv) {
@@ -98,6 +103,24 @@ async function gql(token, query, variables = {}) {
     throw new Error(data.errors.map((e) => e.message).join(" | "));
   }
   return data.data;
+}
+
+/** @param {string} repo */
+function normalizeRepo(repo) {
+  if (!repo || typeof repo !== "string") return "";
+  return repo
+    .trim()
+    .replace(/^https?:\/\/github\.com\//, "")
+    .replace(/\.git$/, "");
+}
+
+/**
+ * @param {{ repos?: string[] }} template
+ * @param {string} targetRepoNorm
+ */
+function templateMatchesTargetRepo(template, targetRepoNorm) {
+  const repos = (template.repos ?? []).map(normalizeRepo).filter(Boolean);
+  return repos.includes(targetRepoNorm);
 }
 
 async function fetchWorkspaceTemplates(token, workspaceId) {
@@ -192,15 +215,30 @@ async function generateTemplate(token, projectId) {
 
 function buildRows(targets, templates) {
   return targets.map((target) => {
-    const matches = templates.filter(
-      (t) => t.status === "UNPUBLISHED" && (t.repos ?? []).includes(target.repo)
-    );
-    const newest = matches.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))[0] ?? null;
+    const targetRepoNorm = normalizeRepo(target.repo);
+    const forRepo = templates.filter((t) => templateMatchesTargetRepo(t, targetRepoNorm));
+    const unpublished = forRepo
+      .filter((t) => t.status === "UNPUBLISHED")
+      .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+    const published = forRepo
+      .filter((t) => t.status === "PUBLISHED")
+      .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+
+    const newestUnpublished = unpublished[0] ?? null;
+    const newestPublished = published[0] ?? null;
+    const primary = newestUnpublished ?? newestPublished ?? null;
+
+    let state;
+    if (newestUnpublished) state = "draft";
+    else if (newestPublished) state = "published";
+    else state = "missing";
+
     return {
       target,
-      matches,
-      newest,
-      state: newest ? "found" : "missing",
+      /** Unpublished only — used for duplicate deletion */
+      matches: unpublished,
+      newest: primary,
+      state,
     };
   });
 }
@@ -230,7 +268,7 @@ async function main() {
   const rows = buildRows(TARGETS, templates);
 
   table(
-    ["Target", "Repo", "State", "Current Draft", "Code"],
+    ["Target", "Repo", "State", "Template", "Code"],
     rows.map((r) => [
       r.target.desiredName,
       r.target.repo,
@@ -239,6 +277,13 @@ async function main() {
       r.newest?.code ?? "-",
     ])
   );
+
+  const missingCount = rows.filter((r) => r.state === "missing").length;
+  if (missingCount > 0 && (!opts.apply || !opts.recreateMissing)) {
+    info(
+      "Missing drafts are not created unless you pass --recreate-missing (and --apply to run templateGenerate). Example: pnpm run templates:sync:apply"
+    );
+  }
 
   for (const row of rows) {
     if (row.matches.length <= 1) continue;
@@ -259,9 +304,11 @@ async function main() {
     for (const row of rows) {
       if (row.state !== "missing") continue;
 
-      const project = projects.find((p) => p.name === row.target.projectName);
+      const project = findWorkspaceProjectByName(projects, row.target.meta);
       if (!project) {
-        warn(`Project not found for ${row.target.projectName}`);
+        const tried =
+          workspaceProjectMatchCandidatesFromMeta(row.target.meta).join(", ") || "(no candidates)";
+        warn(`Project not found for ${row.target.projectName} (tried: ${tried})`);
         continue;
       }
 
@@ -280,22 +327,29 @@ async function main() {
   }
 
   const updated = await fetchWorkspaceTemplates(token, opts.workspaceId);
+  for (const template of updated) {
+    try {
+      template.repos = await fetchTemplateRepos(token, template.id);
+    } catch {
+      template.repos = [];
+    }
+  }
   const finalRows = buildRows(TARGETS, updated);
-  const foundCount = finalRows.filter((r) => r.newest).length;
+  const mappedCount = finalRows.filter((r) => r.state !== "missing").length;
 
   summaryBox("Draft Summary", [
     `Workspace: ${opts.workspaceId}`,
     `Targets: ${TARGETS.length}`,
-    `Mapped drafts: ${foundCount}`,
-    `Missing drafts: ${TARGETS.length - foundCount}`,
+    `Mapped (draft or published): ${mappedCount}`,
+    `Missing: ${TARGETS.length - mappedCount}`,
     `Applied: ${opts.apply ? "yes" : "no (dry-run)"}`,
     `Recreate missing: ${opts.recreateMissing ? "yes" : "no"}`,
   ]);
 
-  if (foundCount === TARGETS.length) {
-    success("All target repos are mapped to unpublished drafts.");
+  if (mappedCount === TARGETS.length) {
+    success("Each target repo has a workspace template (unpublished draft or published).");
   } else {
-    warn("Some target repos are still missing drafts.");
+    warn("Some target repos still have no matching template.");
   }
 }
 

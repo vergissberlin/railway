@@ -11,6 +11,7 @@
  * @property {string} image
  * @property {string} description 25–75 chars for Railway `templatePublish`
  * @property {boolean} workspaceAutomation include in root automation scripts
+ * @property {string} railwayProjectName exact Railway workspace project name if set in JSON (else "")
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -38,6 +39,10 @@ export function normalizeRailwayTemplateMetadata(raw, folderName) {
     image: String(raw.image ?? "").trim(),
     description: String(raw.description ?? "").trim(),
     workspaceAutomation: Boolean(raw.workspaceAutomation),
+    railwayProjectName:
+      typeof raw.railwayProjectName === "string" && raw.railwayProjectName.trim()
+        ? raw.railwayProjectName.trim()
+        : "",
   };
 
   const missing = ["repo", "displayName", "publishedCode", "image"].filter((k) => !entry[k]);
@@ -81,6 +86,41 @@ export function loadRailwayTemplateMetadataFromDisk(root = REPO_ROOT) {
   }
 
   return out;
+}
+
+/**
+ * Ordered names to try when matching a Railway workspace project to metadata.
+ * @param {RailwayTemplateMetadata} meta
+ * @returns {string[]}
+ */
+export function workspaceProjectMatchCandidatesFromMeta(meta) {
+  const candidates = [
+    meta.railwayProjectName,
+    meta.project,
+    meta.displayName,
+  ].filter((s) => s && String(s).trim());
+  const seen = new Set();
+  return candidates.filter((c) => (seen.has(c) ? false : (seen.add(c), true)));
+}
+
+/**
+ * @param {{ id: string, name: string }[]} projects
+ * @param {RailwayTemplateMetadata} meta
+ * @returns {{ id: string, name: string } | null}
+ */
+export function findWorkspaceProjectByName(projects, meta) {
+  const names = workspaceProjectMatchCandidatesFromMeta(meta);
+  const byExact = new Map(projects.map((p) => [p.name, p]));
+  for (const name of names) {
+    const p = byExact.get(name);
+    if (p) return p;
+  }
+  const byLower = new Map(projects.map((p) => [p.name.toLowerCase(), p]));
+  for (const name of names) {
+    const p = byLower.get(String(name).toLowerCase());
+    if (p) return p;
+  }
+  return null;
 }
 
 /**
