@@ -27,10 +27,13 @@ jobs:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
     steps:
+      # Private `railwayapp-*` repos: set secret SUBMODULES_PAT (fine-grained PAT, Contents: Read on those repos).
+      # If submodules are public, `github.token` is enough.
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          token: ${{ secrets.SUBMODULES_PAT || github.token }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
