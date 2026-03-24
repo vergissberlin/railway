@@ -13,7 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { loadRailwayDotenv } from "./load-railway-dotenv.mjs";
 import { error, header, info, progress, success, summaryBox, table, warn } from "./misc-cli-utils.mjs";
-import { RAILWAY_TEMPLATE_TARGETS } from "./railway-template-targets.mjs";
+import { getRailwayTemplateTargets } from "./railway-template-targets.mjs";
 import {
   formatRailwayGraphqlErrors,
   validateRailwayTemplatePublishDescription,
@@ -259,7 +259,7 @@ async function main() {
   const projectsData = await fetchWorkspaceProjects(token, opts.verbose);
   let templates = await fetchWorkspaceTemplatesWithRepos(token, opts.verbose);
 
-  let targets = RAILWAY_TEMPLATE_TARGETS;
+  let targets = getRailwayTemplateTargets();
   if (opts.only) {
     targets = targets.filter((t) => t.project === opts.only);
     if (!targets.length) throw new Error(`No target for --only=${opts.only}`);

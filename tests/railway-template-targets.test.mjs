@@ -6,6 +6,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  getRailwayTemplateMetadata,
+  getRailwayTemplateTargets,
   loadRailwayTemplateMetadataFromDisk,
   normalizeRailwayTemplateMetadata,
 } from "../scripts/railway-template-targets.mjs";
@@ -73,6 +75,18 @@ test("loadRailwayTemplateMetadataFromDisk reads fixture directories", () => {
   const all = loadRailwayTemplateMetadataFromDisk(FIXTURE_ROOT);
   assert.equal(all.length, 2);
   const targets = all.filter((t) => t.workspaceAutomation);
+  assert.equal(targets.length, 1);
+  assert.equal(targets[0].publishedCode, "alpha");
+});
+
+test("getRailwayTemplateMetadata matches loadRailwayTemplateMetadataFromDisk for a root", () => {
+  const a = loadRailwayTemplateMetadataFromDisk(FIXTURE_ROOT);
+  const b = getRailwayTemplateMetadata(FIXTURE_ROOT);
+  assert.deepEqual(a, b);
+});
+
+test("getRailwayTemplateTargets filters workspaceAutomation from fixture root", () => {
+  const targets = getRailwayTemplateTargets(FIXTURE_ROOT);
   assert.equal(targets.length, 1);
   assert.equal(targets[0].publishedCode, "alpha");
 });

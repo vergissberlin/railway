@@ -1,6 +1,7 @@
 /**
  * Loads per-repository `railway-template.json` files from each `railwayapp-*` submodule.
- * `RAILWAY_TEMPLATE_TARGETS` is the subset with `workspaceAutomation: true` (publish/verify scripts).
+ * Use `getRailwayTemplateTargets()` for the subset with `workspaceAutomation: true` (publish/verify scripts).
+ * Loading is lazy so importing this module does not require submodules (e.g. in CI tests).
  *
  * @typedef {Object} RailwayTemplateMetadata
  * @property {string} project
@@ -82,5 +83,18 @@ export function loadRailwayTemplateMetadataFromDisk(root = REPO_ROOT) {
   return out;
 }
 
-export const RAILWAY_TEMPLATE_METADATA = loadRailwayTemplateMetadataFromDisk();
-export const RAILWAY_TEMPLATE_TARGETS = RAILWAY_TEMPLATE_METADATA.filter((t) => t.workspaceAutomation);
+/**
+ * @param {string} [root]
+ * @returns {RailwayTemplateMetadata[]}
+ */
+export function getRailwayTemplateMetadata(root) {
+  return loadRailwayTemplateMetadataFromDisk(root);
+}
+
+/**
+ * @param {string} [root]
+ * @returns {RailwayTemplateMetadata[]}
+ */
+export function getRailwayTemplateTargets(root) {
+  return getRailwayTemplateMetadata(root).filter((t) => t.workspaceAutomation);
+}

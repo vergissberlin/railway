@@ -9,14 +9,14 @@ import {
   formatRailwayGraphqlErrors,
   validateRailwayTemplatePublishDescription,
 } from "./template-cli-lib.mjs";
-import { RAILWAY_TEMPLATE_TARGETS } from "./railway-template-targets.mjs";
+import { getRailwayTemplateTargets } from "./railway-template-targets.mjs";
 
 loadRailwayDotenv();
 
 const GRAPHQL_URL = "https://backboard.railway.app/graphql/v2";
 const WORKSPACE_ID = "ae04726a-4471-430c-85e5-0bb2f83791fb";
 
-const TARGETS = RAILWAY_TEMPLATE_TARGETS;
+const TARGETS = getRailwayTemplateTargets();
 
 function parseArgs(argv) {
   const opts = { apply: false, verbose: false };

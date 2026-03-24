@@ -41,7 +41,7 @@ What we verified:
 ## Related scripts
 
 - `railwayapp-*/railway-template.json` — per-template metadata (display title, image, description, published slug); see [railway-template-metadata.md](./railway-template-metadata.md).
-- `scripts/railway-template-targets.mjs` — loads those JSON files and exports `RAILWAY_TEMPLATE_TARGETS` (`workspaceAutomation: true`).
+- `scripts/railway-template-targets.mjs` — loads those JSON files; `getRailwayTemplateTargets()` returns entries with `workspaceAutomation: true` (publish/verify scripts). Loading is lazy so the module can be imported without checked-out submodules (e.g. CI).
 - `scripts/sync-railway-template-drafts.mjs` — regenerate drafts from projects (`templateGenerate`).
 - `scripts/apply-railway-template-display-names.mjs` — rename Railway projects to the display title and recreate each template so the marketplace name matches (not the `railwayapp-*` repo prefix).
 - `scripts/verify-railway-template-drafts.mjs` — CI checks for draft/repo/code consistency.
