@@ -162,3 +162,25 @@ test("sync-submodules supports --no-rebase pull flow", () => {
   const status = runGit(submodulePath, ["status", "--porcelain"]);
   assert.equal(status, "");
 });
+
+test("sync-submodules exits 0 when --help is passed", () => {
+  const { workspacePath } = setupWorkspace();
+  const result = spawnSync("node", [SCRIPT_PATH, "--root", workspacePath, "--help"], {
+    cwd: workspacePath,
+    encoding: "utf8",
+    stdio: "pipe",
+  });
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /Usage:/);
+});
+
+test("sync-submodules exits 1 when .gitmodules is missing", () => {
+  const emptyRoot = fs.mkdtempSync(path.join(os.tmpdir(), "railway-sync-no-gm-"));
+  const result = spawnSync("node", [SCRIPT_PATH, "--root", emptyRoot], {
+    cwd: emptyRoot,
+    encoding: "utf8",
+    stdio: "pipe",
+  });
+  assert.equal(result.status, 1);
+  assert.match(stripAnsi(result.stdout + result.stderr), /Missing \.gitmodules/);
+});

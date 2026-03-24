@@ -33,6 +33,63 @@ Old footer content
   return tmpRoot;
 }
 
+function makeTempRepoWithMissingReadmeSubmodule() {
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "railway-footer-mr-"));
+  fs.writeFileSync(
+    path.join(tmpRoot, ".gitmodules"),
+    `[submodule "railwayapp-email"]
+\tpath = railwayapp-email
+\turl = git@github.com:vergissberlin/railwayapp-email.git
+[submodule "no-readme"]
+\tpath = no-readme-sub
+\turl = git@github.com:vergissberlin/railwayapp-email.git
+`,
+    "utf8"
+  );
+  fs.mkdirSync(path.join(tmpRoot, "railwayapp-email"), { recursive: true });
+  fs.mkdirSync(path.join(tmpRoot, "no-readme-sub"), { recursive: true });
+  fs.writeFileSync(
+    path.join(tmpRoot, "railwayapp-email", "README.md"),
+    `# Email Service
+
+Body text.
+
+<!-- footer -->
+Old footer content
+`,
+    "utf8"
+  );
+  fs.writeFileSync(path.join(tmpRoot, "footer.md"), "New footer content\n", "utf8");
+  return tmpRoot;
+}
+
+function makeTempRepoWithAlreadyMatchingFooter() {
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "railway-footer-unch-"));
+  fs.writeFileSync(
+    path.join(tmpRoot, ".gitmodules"),
+    `[submodule "railwayapp-email"]
+\tpath = railwayapp-email
+\turl = git@github.com:vergissberlin/railwayapp-email.git
+`,
+    "utf8"
+  );
+  fs.mkdirSync(path.join(tmpRoot, "railwayapp-email"), { recursive: true });
+  const footerText = "Already in sync footer\n";
+  fs.writeFileSync(path.join(tmpRoot, "footer.md"), footerText, "utf8");
+  fs.writeFileSync(
+    path.join(tmpRoot, "railwayapp-email", "README.md"),
+    `# Email Service
+
+Body text.
+
+<!-- footer -->
+${footerText.trim()}
+`,
+    "utf8"
+  );
+  return tmpRoot;
+}
+
 test("replace-readme-footer uses footer.md by default", () => {
   const tmpRoot = makeTempRepo();
 
@@ -108,4 +165,24 @@ test("replace-readme-footer reports missing marker without changing file", () =>
   const after = fs.readFileSync(readmePath, "utf8");
   assert.equal(after, before);
   assert.match(out, /Missing marker in README/);
+});
+
+test("replace-readme-footer warns when submodule README is missing", () => {
+  const tmpRoot = makeTempRepoWithMissingReadmeSubmodule();
+  const out = execFileSync("node", [SCRIPT_PATH], {
+    cwd: tmpRoot,
+    stdio: "pipe",
+    encoding: "utf8",
+  });
+  assert.match(out, /Missing README: no-readme-sub/);
+});
+
+test("replace-readme-footer reports unchanged when footer already matches", () => {
+  const tmpRoot = makeTempRepoWithAlreadyMatchingFooter();
+  const out = execFileSync("node", [SCRIPT_PATH], {
+    cwd: tmpRoot,
+    stdio: "pipe",
+    encoding: "utf8",
+  });
+  assert.match(out, /\[OK\].*unchanged/);
 });

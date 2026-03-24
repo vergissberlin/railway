@@ -1,10 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 
 import {
   DEFAULT_FOOTER_MARKER,
   applyFooterWithMarker,
+  ensureFooterMarker,
   formatRailwayGraphqlErrors,
+  getSubmodulesFromRoot,
   makeBadgeMarkdown,
   parseSubmodulesFromGitmodules,
   replaceFooterContent,
@@ -16,6 +21,13 @@ test("toHttpsRepoUrl converts SSH GitHub URLs to HTTPS", () => {
   assert.equal(
     toHttpsRepoUrl("git@github.com:vergissberlin/railwayapp-airflow.git"),
     "https://github.com/vergissberlin/railwayapp-airflow"
+  );
+});
+
+test("toHttpsRepoUrl strips .git from HTTPS URLs", () => {
+  assert.equal(
+    toHttpsRepoUrl("https://github.com/vergissberlin/railwayapp-email.git"),
+    "https://github.com/vergissberlin/railwayapp-email"
   );
 });
 
@@ -38,6 +50,38 @@ test("parseSubmodulesFromGitmodules reads path and normalized repo URL", () => {
     path: "railwayapp-email",
     repoUrl: "https://github.com/vergissberlin/railwayapp-email",
   });
+});
+
+test("parseSubmodulesFromGitmodules skips sections without path or url", () => {
+  const content = `[submodule "incomplete"]
+\turl = https://github.com/x/y.git
+[submodule "ok"]
+\tpath = sub-a
+\turl = https://github.com/o/r.git
+`;
+  const parsed = parseSubmodulesFromGitmodules(content);
+  assert.equal(parsed.length, 1);
+  assert.equal(parsed[0].path, "sub-a");
+});
+
+test("getSubmodulesFromRoot throws when .gitmodules is missing", () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "railway-tcl-no-gm-"));
+  assert.throws(() => getSubmodulesFromRoot(tmp), /Missing \.gitmodules/);
+});
+
+test("getSubmodulesFromRoot reads .gitmodules from root", () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "railway-tcl-gm-"));
+  fs.writeFileSync(
+    path.join(tmp, ".gitmodules"),
+    `[submodule "a"]
+\tpath = my-sub
+\turl = https://github.com/o/r.git
+`,
+    "utf8"
+  );
+  const parsed = getSubmodulesFromRoot(tmp);
+  assert.equal(parsed.length, 1);
+  assert.equal(parsed[0].path, "my-sub");
 });
 
 test("replaceFooterContent replaces everything after marker", () => {
@@ -70,6 +114,14 @@ Body text
 test("replaceFooterContent returns null when marker is missing", () => {
   const readme = "# Template\n\nBody text\n";
   assert.equal(replaceFooterContent(readme, DEFAULT_FOOTER_MARKER, "x"), null);
+});
+
+test("ensureFooterMarker leaves content unchanged when marker exists", () => {
+  const withMarker = `# Title
+
+<!-- footer -->
+`;
+  assert.equal(ensureFooterMarker(withMarker), withMarker);
 });
 
 test("applyFooterWithMarker appends marker if not present", () => {
@@ -128,4 +180,13 @@ test("formatRailwayGraphqlErrors joins messages and traceId", () => {
   assert.match(out, /Problem processing request/);
   assert.match(out, /traceId=abc/);
   assert.match(out, /code=X/);
+});
+
+test("formatRailwayGraphqlErrors returns empty for missing or empty errors", () => {
+  assert.equal(formatRailwayGraphqlErrors(undefined), "");
+  assert.equal(formatRailwayGraphqlErrors([]), "");
+});
+
+test("formatRailwayGraphqlErrors uses default message when entry has no message", () => {
+  assert.match(formatRailwayGraphqlErrors([{}]), /Unknown GraphQL error/);
 });
