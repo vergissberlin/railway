@@ -15,7 +15,10 @@
     "templates:publish": "node scripts/publish-railway-template-drafts.mjs",
     "templates:publish:apply": "node scripts/publish-railway-template-drafts.mjs --apply",
     "templates:display-names": "node scripts/apply-railway-template-display-names.mjs",
-    "templates:display-names:apply": "node scripts/apply-railway-template-display-names.mjs --apply"
+    "templates:display-names:apply": "node scripts/apply-railway-template-display-names.mjs --apply",
+    "marketplace:queries:generate": "node scripts/generate-railway-marketplace-check-queries.mjs",
+    "marketplace:search": "node scripts/railway-template-marketplace-search.mjs",
+    "marketplace:search:json": "node scripts/railway-template-marketplace-search.mjs --json"
   },
   "keywords": [],
   "author": "",

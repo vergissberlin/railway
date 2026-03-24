@@ -10,3 +10,6 @@ node_modules/
 .env.*
 !.env.example
 
+# Local cache (Railway marketplace template list)
+.cache/
+
