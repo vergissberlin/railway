@@ -1,0 +1,50 @@
+---
+description: Enforce release-please setup for all railwayapp submodules
+globs: railwayapp-*/**
+alwaysApply: false
+---
+
+# Release Please for Template Submodules
+
+All template repositories (`railwayapp-*` git submodules) must use `release-please` for automated releases.
+
+## Required Files Per Submodule
+
+- `.github/workflows/release-please.yml`
+- `release-please-config.json`
+- `.release-please-manifest.json`
+
+## Workflow Standard
+
+- Use the official action: `googleapis/release-please-action`
+- Trigger on `push` to `main`
+- Use `release-type: simple`
+- Use `include-component-in-tag: true`
+- Use `skip-github-pull-request: false` and `skip-github-release: false`
+
+## Config and Manifest Rules
+
+- Keep one package path: `"."`
+- Keep package name aligned with repo name (for example `railwayapp-mjml`)
+- Start manifest version at `0.1.0` unless submodule already has releases
+
+## Commit and PR Rules
+
+- Commits must follow Conventional Commits in English (`feat:`, `fix:`, `docs:`, `chore:`)
+- Do not use manual version bumps in source files; release-please owns version/tag progression
+- Do not create manual GitHub releases when release-please is active
+
+## Example
+
+```yaml
+on:
+  push:
+    branches: [main]
+jobs:
+  release-please:
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          release-type: simple
+          include-component-in-tag: true
+```
