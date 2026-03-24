@@ -27,19 +27,13 @@ jobs:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
     steps:
-      # Private `railwayapp-*` repos require a PAT: `github.token` cannot clone other private repos (clone fails with "repository not found").
-      # Create a fine-grained PAT (Contents: Read) for each `vergissberlin/railwayapp-*` repo (or classic PAT with `repo` scope), add as repo secret SUBMODULES_PAT.
-      - name: Require SUBMODULES_PAT for private submodules
-        if: ${{ secrets.SUBMODULES_PAT == '' }}
-        run: |
-          echo "::error::Missing repository secret SUBMODULES_PAT. Private submodule clones (e.g. railwayapp-mqtt) need a PAT: Settings → Secrets → Actions → add SUBMODULES_PAT (fine-grained: Contents Read on each railwayapp-* repo)."
-          exit 1
-
+      # Public `railwayapp-*` repos: default `github.token` is enough for submodule checkout.
+      # If any submodule is private again, set secret SUBMODULES_PAT (fine-grained Contents: Read or classic `repo`); otherwise clone fails with "repository not found".
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
-          token: ${{ secrets.SUBMODULES_PAT }}
+          token: ${{ secrets.SUBMODULES_PAT || github.token }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
