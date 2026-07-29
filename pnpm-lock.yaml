@@ -12,11 +12,11 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1
       chalk:
-        specifier: ^5.6.2
-        version: 5.6.2
+        specifier: ^6.0.0
+        version: 6.0.0
       dotenv:
-        specifier: ^17.3.1
-        version: 17.3.1
+        specifier: ^17.4.2
+        version: 17.4.2
 
 packages:
 
@@ -47,12 +47,16 @@ packages:
     resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
+  chalk@6.0.0:
+    resolution: {integrity: sha512-2uNTXIuTTxk7ciZgAU1BQcgnchcG0xXnrs6jzkQfj9SsRa9M2s5zE8WT96hS6KmG4MzWHSrvH43DF1m4XRkrFg==}
+    engines: {node: '>=22'}
+
   cli-boxes@3.0.0:
     resolution: {integrity: sha512-/lzGpEWL/8PfI0BmBOPRwp0c/wFNX1RdUML3jK/RcSBA9T8mZDdQpqYBKtCFTOfQbwPqWEOpjqW+Fnayc0969g==}
     engines: {node: '>=10'}
 
-  dotenv@17.3.1:
-    resolution: {integrity: sha512-IO8C/dzEb6O3F9/twg6ZLXz164a2fhTnEWb95H23Dm4OuN+92NmEAlTrupP9VW6Jm3sO26tQlqyvyi4CsnY9GA==}
+  dotenv@17.4.2:
+    resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
     engines: {node: '>=12'}
 
   emoji-regex@10.6.0:
@@ -124,9 +128,11 @@ snapshots:
 
   chalk@5.6.2: {}
 
+  chalk@6.0.0: {}
+
   cli-boxes@3.0.0: {}
 
-  dotenv@17.3.1: {}
+  dotenv@17.4.2: {}
 
   emoji-regex@10.6.0: {}
 
