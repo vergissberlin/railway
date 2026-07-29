@@ -1,0 +1,93 @@
+name: Railway Template Drafts Sync & Publish
+
+# Applies (not just verifies) Railway template drafts:
+#   1. templates:sync:apply    -> regenerate/recreate drafts from the current project state
+#   2. templates:publish:apply -> call Railway's templatePublish mutation
+#
+# Only templates with "workspaceAutomation": true in their railway-template.json
+# are touched (see scripts/railway-template-targets.mjs). Templates with
+# workspaceAutomation: false are intentionally skipped and must be
+# synced/published manually per docs/railway-template-publish.md.
+#
+# NOTE: pushes made directly to a railwayapp-* submodule repo do NOT trigger
+# this workflow. It only reacts to changes in THIS meta-repo (i.e. once a
+# submodule pointer bump for railwayapp-* is committed/pushed here, per the
+# "Updating all submodules" section in README.md). Use workflow_dispatch to
+# run it on demand regardless of the paths filter.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "railwayapp-*"
+      - "scripts/sync-railway-template-drafts.mjs"
+      - "scripts/publish-railway-template-drafts.mjs"
+      - "scripts/railway-template-targets.mjs"
+      - "scripts/template-cli-lib.mjs"
+      - "scripts/load-railway-dotenv.mjs"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/railway-template-drafts-sync-publish.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: railway-template-drafts-sync-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync-and-publish:
+    name: Sync & Publish Railway Template Drafts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+    steps:
+      # Public `railwayapp-*` repos: default `github.token` is enough for submodule checkout.
+      # If any submodule is private again, set secret SUBMODULES_PAT (fine-grained Contents: Read or classic `repo`); otherwise clone fails with "repository not found".
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULES_PAT || github.token }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 25
+          cache: pnpm
+
+      - name: Ensure Railway token is configured
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "::error::Missing RAILWAY_TOKEN secret"
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Sync Railway template drafts (apply, recreate missing)
+        run: pnpm run templates:sync:apply
+
+      - name: Publish Railway template drafts (apply)
+        run: pnpm run templates:publish:apply
+
+      - name: Verify drafts after publish
+        if: always()
+        run: pnpm run templates:verify:json > railway-template-drafts-report.json
+
+      - name: Upload verification report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: railway-template-drafts-report
+          path: railway-template-drafts-report.json
+          if-no-files-found: warn
