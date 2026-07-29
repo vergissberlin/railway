@@ -64,3 +64,6 @@
 [submodule "railwayapp-flowise"]
 	path = railwayapp-flowise
 	url = git@github.com:vergissberlin/railwayapp-flowise.git
+[submodule "railwayapp-mjml"]
+	path = railwayapp-mjml
+	url = git@github.com:vergissberlin/railwayapp-mjml.git
