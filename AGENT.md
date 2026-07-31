@@ -8,6 +8,8 @@ This file defines project conventions for coding agents working in this reposito
 
 These rules apply to the whole workspace unless a deeper `AGENT.md` or `agent.md` in a subdirectory defines more specific rules for that scope.
 
+Tool-specific agent configuration lives in **[`.agents/`](./.agents/)** — `.agents/rules/` for repository rules and `.agents/skills/` for Claude Code skills. `.claude/skills` and `.cursor/rules` are symlinks into it, so there is one copy of each file. This file stays at the root because it is the entry point both humans and agents read first.
+
 ## Repository Scope Rule
 
 - Apply repository-level instructions only to Railway templates that are listed as submodules in `.gitmodules`.

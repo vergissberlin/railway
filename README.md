@@ -108,7 +108,7 @@ pnpm templates:registry:check                        # CI guard: fails on a stal
 
 Banner titles, logos and footer badges come from each repo's `railway-template.json` — there is no hardcoded per-template list in the scripts. See **[docs/railway-template-metadata.md](./docs/railway-template-metadata.md)**.
 
-The whole flow, including publishing, is driven end to end by the **`railway-template-anlegen`** skill in `.claude/skills/`.
+The whole flow, including publishing, is driven end to end by the **`railway-template-anlegen`** skill in [`.agents/skills/`](./.agents/).
 
 ## Publishing template drafts (API / UI)
 

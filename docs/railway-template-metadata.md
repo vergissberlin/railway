@@ -62,4 +62,4 @@ Run `pnpm templates:create -- --help` for the full option list. The generated RE
 ## Related
 
 - [`railway-template-publish.md`](./railway-template-publish.md) — `templatePublish` troubleshooting and CLI usage.
-- `.claude/skills/railway-template-anlegen/` — end-to-end skill that drives this whole flow.
+- `.agents/skills/railway-template-anlegen/` — end-to-end skill that drives this whole flow.
