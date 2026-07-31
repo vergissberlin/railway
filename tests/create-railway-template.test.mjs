@@ -241,6 +241,12 @@ test("the deploy code placeholder is surfaced as a follow-up", () => {
   assert.match(out, /REPLACE_WITH_RAILWAY_TEMPLATE_CODE/);
 });
 
+test("scaffolding without a logo says which file to add", () => {
+  const dir = tempDir();
+  const out = run(["--spec", writeSpec(dir), "--out", path.join(dir, "t")]);
+  assert.match(out, /logo-uptime-kuma\.png/);
+});
+
 test("a large inlined logo produces a size warning", () => {
   const dir = tempDir();
   const logo = path.join(dir, "big.png");

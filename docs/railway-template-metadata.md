@@ -22,11 +22,19 @@ These drive the generated README header banner and the shared cross-repo badge f
 
 | Field | Description |
 | --- | --- |
-| `logoFile` | Optional. Repo-relative logo (`.svg` or `.png`) inlined as base64 into `template-header.svg` by `pnpm templates:headers`. Keep it small — an SVG or a PNG of at most 256px. A 1024px PNG inflates the banner to ~93 KB where a 170px logo lands around 4 KB, and the same file is served as the marketplace `image`. |
+| `logoFile` | Repo-root logo named **`logo-<slug>.png`** (an `.svg` is equally fine), inlined as base64 into `template-header.svg` by `pnpm templates:headers`. Keep it small — an SVG or a PNG of at most 256px. A 1024px PNG inflates the banner to ~93 KB where a 170px logo lands around 4 KB, and the same file is served as the marketplace `image`. |
 | `customIcon` | Optional. Name of a built-in fallback mark drawn when there is no `logoFile` (see `scripts/lib/template-banner.mjs` for the known names). Ignored when `logoFile` resolves. |
 | `badge` | Optional object `{ label, color, logo }` for the shields.io badge in the shared README footer. `color` is a 6-digit hex value without a leading `#`; `logo` is a [simple-icons](https://simpleicons.org/) slug. An incomplete badge is an error rather than a silent fallback, because a half-filled badge would quietly drop the repo from the footer. |
 
 JSON Schema: [`railway-template.schema.json`](./railway-template.schema.json) (also referenced via `$schema` in each file).
+
+### Logo files
+
+Every template ships the logo of the software it deploys. It is not an optional nicety: the banner doubles as the Railway marketplace image, and a template that shows initials instead of a recognizable mark looks unfinished next to the rest of the catalogue.
+
+- **Name it `logo-<slug>.png`** at the repository root (`logo-grafana.png`, `logo-uptime-kuma.png`). `.svg` is allowed and produces a far smaller banner. The schema enforces the pattern, and `pnpm templates:headers` warns about a name that deviates or a template that declares neither `logoFile` nor `customIcon`.
+- **Source it from the internet** if the repo does not have one yet — the upstream project's own repository or brand page, at most 256px. `.agents/skills/railway-template-anlegen/references/logo-beschaffung.md` documents where to look and what to check before committing.
+- **`customIcon` is the fallback**, for software that genuinely has no distributable mark — not a shortcut around the search.
 
 ## Badge registry (`railway-templates-registry.json`)
 

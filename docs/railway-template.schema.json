@@ -60,7 +60,8 @@
     },
     "logoFile": {
       "type": "string",
-      "description": "Repo-relative logo file (.svg or .png) inlined as base64 into template-header.svg. Keep it small (SVG or <=256px PNG); the banner is also the marketplace image"
+      "pattern": "^logo-[a-z0-9]+(-[a-z0-9]+)*\\.(png|svg)$",
+      "description": "Repo-root logo file named logo-<slug>.png (or .svg), inlined as base64 into template-header.svg. Keep it small (SVG or <=256px PNG); the banner is also the marketplace image"
     },
     "customIcon": {
       "type": "string",
