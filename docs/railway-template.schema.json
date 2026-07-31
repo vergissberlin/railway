@@ -15,6 +15,10 @@
     "workspaceAutomation"
   ],
   "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional pointer to this schema file (see docs/railway-template-metadata.md)"
+    },
     "schemaVersion": {
       "type": "integer",
       "const": 1
@@ -53,6 +57,35 @@
     "workspaceAutomation": {
       "type": "boolean",
       "description": "When true, root-repo scripts (publish/verify/sync display names) include this template"
+    },
+    "logoFile": {
+      "type": "string",
+      "description": "Repo-relative logo file (.svg or .png) inlined as base64 into template-header.svg. Keep it small (SVG or <=256px PNG); the banner is also the marketplace image"
+    },
+    "customIcon": {
+      "type": "string",
+      "description": "Built-in fallback icon name used when no logoFile exists (see scripts/lib/template-banner.mjs)"
+    },
+    "badge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "color", "logo"],
+      "description": "shields.io badge used in the shared cross-repo README footer",
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "Badge text (usually the displayName)"
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^[0-9A-Fa-f]{6}$",
+          "description": "Brand color as a 6-digit hex value without a leading #"
+        },
+        "logo": {
+          "type": "string",
+          "description": "simple-icons slug rendered on the badge (e.g. grafana, influxdb)"
+        }
+      }
     }
   }
 }

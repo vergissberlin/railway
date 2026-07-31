@@ -12,6 +12,14 @@
  * @property {string} description 25–75 chars for Railway `templatePublish`
  * @property {boolean} workspaceAutomation include in root automation scripts
  * @property {string} railwayProjectName exact Railway workspace project name if set in JSON (else "")
+ * @property {string} logoFile repo-relative logo inlined into template-header.svg (else "")
+ * @property {string} customIcon built-in fallback icon name when no logoFile exists (else "")
+ * @property {TemplateBadge | null} badge shields.io badge for the shared README footer (else null)
+ *
+ * @typedef {Object} TemplateBadge
+ * @property {string} label badge text
+ * @property {string} color 6-digit hex without a leading #
+ * @property {string} logo simple-icons slug
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -21,6 +29,40 @@ import { validateRailwayTemplatePublishDescription } from "./template-cli-lib.mj
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.join(__dirname, "..");
+
+/**
+ * Badge data is optional, but a half-filled badge would silently drop the repo from the
+ * shared footer, so an incomplete one is an error rather than a fallback to `null`.
+ * @param {unknown} raw
+ * @param {string} folderName
+ * @returns {TemplateBadge | null}
+ */
+export function normalizeTemplateBadge(raw, folderName) {
+  if (raw === undefined || raw === null) return null;
+  if (typeof raw !== "object" || Array.isArray(raw)) {
+    throw new Error(`badge must be an object in ${folderName}/railway-template.json`);
+  }
+
+  const badge = {
+    label: String(raw.label ?? "").trim(),
+    color: String(raw.color ?? "").trim().replace(/^#/, ""),
+    logo: String(raw.logo ?? "").trim(),
+  };
+
+  const missing = ["label", "color", "logo"].filter((k) => !badge[k]);
+  if (missing.length) {
+    throw new Error(
+      `Missing badge field(s) ${missing.join(", ")} in ${folderName}/railway-template.json`
+    );
+  }
+  if (!/^[0-9A-Fa-f]{6}$/.test(badge.color)) {
+    throw new Error(
+      `badge.color must be a 6-digit hex value in ${folderName}/railway-template.json (got "${badge.color}")`
+    );
+  }
+
+  return badge;
+}
 
 /**
  * @param {Record<string, unknown>} raw
@@ -43,6 +85,9 @@ export function normalizeRailwayTemplateMetadata(raw, folderName) {
       typeof raw.railwayProjectName === "string" && raw.railwayProjectName.trim()
         ? raw.railwayProjectName.trim()
         : "",
+    logoFile: typeof raw.logoFile === "string" ? raw.logoFile.trim() : "",
+    customIcon: typeof raw.customIcon === "string" ? raw.customIcon.trim() : "",
+    badge: normalizeTemplateBadge(raw.badge, folderName),
   };
 
   const missing = ["repo", "displayName", "publishedCode", "image"].filter((k) => !entry[k]);
@@ -57,9 +102,11 @@ export function normalizeRailwayTemplateMetadata(raw, folderName) {
 
 /**
  * @param {string} [root]
+ * @param {{ allowEmpty?: boolean }} [opts] `allowEmpty` returns [] instead of throwing when no
+ *   submodule is checked out — used by generators that legitimately run on a partial checkout.
  * @returns {RailwayTemplateMetadata[]}
  */
-export function loadRailwayTemplateMetadataFromDisk(root = REPO_ROOT) {
+export function loadRailwayTemplateMetadataFromDisk(root = REPO_ROOT, opts = {}) {
   if (!fs.existsSync(root)) {
     throw new Error(`Repo root not found: ${root}`);
   }
@@ -78,7 +125,7 @@ export function loadRailwayTemplateMetadataFromDisk(root = REPO_ROOT) {
     out.push(normalizeRailwayTemplateMetadata(raw, name));
   }
 
-  if (out.length === 0) {
+  if (out.length === 0 && !opts.allowEmpty) {
     throw new Error(
       "No railway-template.json files found under railwayapp-* directories. " +
         "Run `git submodule update --init --recursive` after clone."
