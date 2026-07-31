@@ -1,5 +1,13 @@
 #!/usr/bin/env node
 
+/**
+ * Regenerates `template-header.svg` in every checked-out template repo and makes sure the README
+ * references it below its H1.
+ *
+ * Title and logo come from each repo's own `railway-template.json` (`displayName`, `logoFile` /
+ * `customIcon`) — there is deliberately no hardcoded list here, so adding a template never means
+ * editing this file. A banner only needs its own repo on disk, so a partial checkout is fine.
+ */
 import fs from "node:fs";
 import path from "node:path";
 import {
@@ -10,312 +18,149 @@ import {
   summaryBox,
   warn,
 } from "./misc-cli-utils.mjs";
+import {
+  BANNER_FILENAME,
+  DEFAULT_SUBTITLE,
+  applyHeaderImage,
+  buildBannerForRepo,
+} from "./lib/template-banner.mjs";
+import { loadRailwayTemplateMetadataFromDisk } from "./railway-template-targets.mjs";
 
-const ROOT = process.cwd();
+/**
+ * @param {string[]} argv
+ * @returns {{ root: string, only: string, dryRun: boolean }}
+ */
+export function parseArgs(argv) {
+  const args = { root: process.cwd(), only: "", dryRun: false };
 
-const CONFIG = {
-  "railwayapp-airbyte": {
-    title: "Airbyte",
-    subtitle: "Railway Template",
-    logoFile: "railwayapp-airbyte.svg",
-  },
-  "railwayapp-airflow": {
-    title: "Apache Airflow",
-    subtitle: "Railway Template",
-    logoFile: "railwayapp-airflow.svg",
-  },
-  "railwayapp-codimd": {
-    title: "CodiMD",
-    subtitle: "Railway Template",
-    logoFile: "codimd-logo.png",
-  },
-  "railwayapp-django": {
-    title: "Django",
-    subtitle: "Railway Template",
-    customIcon: "django",
-  },
-  "railwayapp-email": {
-    title: "Email Service",
-    subtitle: "Railway Template",
-    customIcon: "email",
-  },
-  "railwayapp-gitlab": {
-    title: "GitLab CE",
-    subtitle: "Railway Template",
-    logoFile: "railwayapp-gitlab.svg",
-  },
-  "railwayapp-grafana": {
-    title: "Grafana",
-    subtitle: "Railway Template",
-    logoFile: "railwayapp-grafana.png",
-  },
-  "railwayapp-homeassistant": {
-    title: "Home Assistant",
-    subtitle: "Railway Template",
-    logoFile: "railwayapp-homeassistant.svg",
-  },
-  "railwayapp-influxdb": {
-    title: "InfluxDB",
-    subtitle: "Railway Template",
-    logoFile: "logo-influxdb.png",
-  },
-  "railwayapp-fastapi": {
-    title: "FastAPI",
-    subtitle: "Railway Template",
-    customIcon: "fastapi",
-  },
-  "railwayapp-flask": {
-    title: "Flask",
-    subtitle: "Railway Template",
-    customIcon: "flask",
-  },
-  "railwayapp-flowise": {
-    title: "Flowise",
-    subtitle: "Railway Template",
-    customIcon: "flowise",
-  },
-  "railwayapp-mongodb": {
-    title: "MongoDB",
-    subtitle: "Railway Template",
-    customIcon: "mongodb",
-  },
-  "railwayapp-mysql": {
-    title: "MySQL",
-    subtitle: "Railway Template",
-    customIcon: "mysql",
-  },
-  "railwayapp-n8n": {
-    title: "n8n",
-    subtitle: "Railway Template",
-    customIcon: "n8n",
-  },
-  "railwayapp-nodejs": {
-    title: "Node.js",
-    subtitle: "Railway Template",
-    customIcon: "nodejs",
-  },
-  "railwayapp-postgresql": {
-    title: "PostgreSQL",
-    subtitle: "Railway Template",
-    customIcon: "postgresql",
-  },
-  "railwayapp-redis": {
-    title: "Redis",
-    subtitle: "Railway Template",
-    customIcon: "redis",
-  },
-  "railwayapp-mqtt": {
-    title: "Mosquitto MQTT",
-    subtitle: "Railway Template",
-    logoFile: "mosquitto.svg",
-  },
-  "railwayapp-nodered": {
-    title: "Node-RED",
-    subtitle: "Railway Template",
-    customIcon: "nodered",
-  },
-  "railwayapp-opensearch": {
-    title: "OpenSearch",
-    subtitle: "Railway Template",
-    logoFile: "railwayapp-opensearch.svg",
-  },
-  "railwayapp-typo3": {
-    title: "TYPO3 CMS",
-    subtitle: "Railway Template",
-    logoFile: "logo-typo3.png",
-  },
-};
-
-function mimeFor(file) {
-  if (file.endsWith(".svg")) return "image/svg+xml";
-  if (file.endsWith(".png")) return "image/png";
-  return "application/octet-stream";
-}
-
-function toDataUri(filePath) {
-  const data = fs.readFileSync(filePath);
-  const ext = mimeFor(filePath);
-  return `data:${ext};base64,${data.toString("base64")}`;
-}
-
-function customIconSvg(name) {
-  if (name === "email") {
-    return `
-      <rect x="84" y="84" width="112" height="84" rx="14" fill="#1E293B" stroke="#38BDF8" stroke-width="4"/>
-      <path d="M92 98 L140 132 L188 98" stroke="#7DD3FC" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-    `;
-  }
-  if (name === "nodered") {
-    return `
-      <circle cx="102" cy="124" r="14" fill="#7F1D1D"/>
-      <circle cx="140" cy="98" r="14" fill="#991B1B"/>
-      <circle cx="178" cy="124" r="14" fill="#B91C1C"/>
-      <path d="M116 117 L126 109 M154 109 L164 117 M116 131 L164 131" stroke="#FCA5A5" stroke-width="4" fill="none" stroke-linecap="round"/>
-    `;
-  }
-  if (name === "postgresql") {
-    return `
-      <circle cx="140" cy="124" r="48" fill="#336791" opacity="0.95"/>
-      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="26" font-weight="700">PG</text>
-    `;
-  }
-  if (name === "mysql") {
-    return `
-      <circle cx="140" cy="124" r="48" fill="#4479A1" opacity="0.95"/>
-      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="22" font-weight="700">SQL</text>
-    `;
-  }
-  if (name === "mongodb") {
-    return `
-      <circle cx="140" cy="124" r="48" fill="#47A248" opacity="0.95"/>
-      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="26" font-weight="700">M</text>
-    `;
-  }
-  if (name === "n8n") {
-    return `
-      <rect x="92" y="88" width="96" height="72" rx="16" fill="#EA4B71" opacity="0.95"/>
-      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="24" font-weight="700">n8n</text>
-    `;
-  }
-  if (name === "nodejs") {
-    return `
-      <circle cx="140" cy="124" r="48" fill="#339933" opacity="0.95"/>
-      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="26" font-weight="700">JS</text>
-    `;
-  }
-  if (name === "redis") {
-    return `
-      <circle cx="140" cy="124" r="48" fill="#DC382D" opacity="0.95"/>
-      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="26" font-weight="700">R</text>
-    `;
-  }
-  if (name === "flask") {
-    return `
-      <circle cx="140" cy="124" r="48" fill="#3fad48" opacity="0.95"/>
-      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="26" font-weight="700">F</text>
-    `;
-  }
-  if (name === "django") {
-    return `
-      <rect x="92" y="88" width="96" height="72" rx="14" fill="#092E20" opacity="0.95"/>
-      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="22" font-weight="700">Dj</text>
-    `;
-  }
-  if (name === "fastapi") {
-    return `
-      <circle cx="140" cy="124" r="48" fill="#009688" opacity="0.95"/>
-      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="22" font-weight="700">FA</text>
-    `;
-  }
-  if (name === "flowise") {
-    return `
-      <rect x="88" y="84" width="104" height="80" rx="18" fill="#4F46E5" opacity="0.95"/>
-      <text x="140" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="26" font-weight="700">Fi</text>
-    `;
-  }
-  return "";
-}
-
-function buildBanner({ title, subtitle, logoDataUri, customIcon }) {
-  const logoLayer = logoDataUri
-    ? `
-      <rect x="64" y="60" width="152" height="152" rx="24" fill="#0B1228" opacity="0.92"/>
-      <image href="${logoDataUri}" x="84" y="80" width="112" height="112" preserveAspectRatio="xMidYMid meet"/>
-    `
-    : `
-      <rect x="64" y="60" width="152" height="152" rx="24" fill="#0B1228" opacity="0.92"/>
-      ${customIconSvg(customIcon)}
-    `;
-
-  return `<svg width="1280" height="270" viewBox="0 0 1280 270" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">${title} header banner</title>
-  <desc id="desc">Flat gradient banner for ${title} template with software logo.</desc>
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="270" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0B1021"/>
-      <stop offset="0.55" stop-color="#131B3F"/>
-      <stop offset="1" stop-color="#1F174A"/>
-    </linearGradient>
-  </defs>
-  <rect width="1280" height="270" rx="26" fill="url(#bg)"/>
-  <circle cx="1120" cy="68" r="34" fill="#4F46E5" opacity="0.33"/>
-  <circle cx="1185" cy="205" r="56" fill="#06B6D4" opacity="0.15"/>
-  ${logoLayer}
-  <text x="258" y="122" fill="#FFFFFF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="52" font-weight="800">${title}</text>
-  <text x="258" y="168" fill="#B6C2FF" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="28" font-weight="500">${subtitle}</text>
-  <rect x="258" y="188" width="286" height="44" rx="22" fill="#1C285D" stroke="#67E8F9" stroke-opacity="0.6"/>
-  <text x="284" y="216" fill="#CFFAFE" font-family="Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="19" font-weight="700">Deploy on Railway</text>
-</svg>
-`;
-}
-
-function updateReadme(readmePath) {
-  let content = fs.readFileSync(readmePath, "utf8").replace(/\r\n/g, "\n");
-  const headerImage = "![Template Header](./template-header.svg)";
-
-  if (!content.includes(headerImage)) {
-    const lines = content.split("\n");
-    if (lines.length > 0 && lines[0].startsWith("# ")) {
-      lines.splice(1, 0, "", headerImage, "");
-      content = lines.join("\n");
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i];
+    if (arg === "--") {
+      continue;
+    } else if (arg === "--root") {
+      args.root = argv[++i] || args.root;
+    } else if (arg === "--only") {
+      args.only = argv[++i] || args.only;
+    } else if (arg === "--dry-run") {
+      args.dryRun = true;
+    } else if (arg === "--help" || arg === "-h") {
+      printHelp();
+      process.exit(0);
     } else {
-      content = `${headerImage}\n\n${content}`;
+      throw new Error(`Unknown argument: ${arg}`);
     }
   }
 
-  content = content.replace(
-    /!\[[^\]]*\]\(\.\/[^)\n]+\.(svg|png)\)\n\n/g,
-    (m) => (m.includes("template-header.svg") ? m : "")
-  );
-  content = content.replace(/<img\s+src="\.\/[^"]+\.(svg|png)"[^>]*>\n\n/g, "");
-
-  fs.writeFileSync(readmePath, content, "utf8");
+  return args;
 }
 
-function main() {
-  info("Generating flat template header SVGs");
-  let updated = 0;
+function printHelp() {
+  console.log(`Usage:
+  node scripts/generate-template-headers.mjs [options]
 
-  for (const [repo, cfg] of Object.entries(CONFIG)) {
-    const repoPath = path.join(ROOT, repo);
+Reads displayName / logoFile / customIcon from each railwayapp-*/railway-template.json.
+
+Options:
+  --root <path>       Root directory (default: current directory)
+  --only <folder>     Limit to one template folder (e.g. railwayapp-grafana)
+  --dry-run           Print changes without writing files
+  -h, --help          Show this help
+`);
+}
+
+/**
+ * @param {{ root: string, only: string, dryRun: boolean }} args
+ * @returns {{ updated: number, unchanged: number, skipped: number }}
+ */
+export function generateHeaders(args) {
+  const rootPath = path.resolve(args.root);
+  let templates = loadRailwayTemplateMetadataFromDisk(rootPath, { allowEmpty: true });
+
+  if (args.only) {
+    templates = templates.filter((t) => t.project === args.only);
+    if (templates.length === 0) {
+      throw new Error(
+        `No railway-template.json found for ${args.only} under ${rootPath}. ` +
+          "Check the folder name and that the submodule is checked out."
+      );
+    }
+  }
+
+  const counts = { updated: 0, unchanged: 0, skipped: 0 };
+
+  for (const meta of templates) {
+    const repoPath = path.join(rootPath, meta.project);
     const readmePath = path.join(repoPath, "README.md");
-    const bannerPath = path.join(repoPath, "template-header.svg");
-
     if (!fs.existsSync(readmePath)) {
-      warn(`Missing README in ${repo}`);
+      counts.skipped += 1;
+      warn(`Missing README in ${meta.project}`);
       continue;
     }
 
-    let logoDataUri = "";
-    if (cfg.logoFile) {
-      const logoPath = path.join(repoPath, cfg.logoFile);
-      if (fs.existsSync(logoPath)) {
-        logoDataUri = toDataUri(logoPath);
-      } else {
-        warn(`Missing logo file in ${repo}: ${cfg.logoFile}`);
-      }
+    const { svg, warnings } = buildBannerForRepo({
+      repoPath,
+      title: meta.displayName,
+      subtitle: DEFAULT_SUBTITLE,
+      logoFile: meta.logoFile,
+      customIcon: meta.customIcon,
+    });
+    for (const message of warnings) warn(`${meta.project}: ${message}`);
+
+    const bannerPath = path.join(repoPath, BANNER_FILENAME);
+    const currentSvg = fs.existsSync(bannerPath)
+      ? fs.readFileSync(bannerPath, "utf8")
+      : "";
+    const currentReadme = fs.readFileSync(readmePath, "utf8");
+    const nextReadme = applyHeaderImage(currentReadme);
+
+    if (currentSvg === svg && nextReadme === currentReadme) {
+      counts.unchanged += 1;
+      progress("[OK]", meta.project, "unchanged", "green");
+      continue;
     }
 
-    const svg = buildBanner({
-      title: cfg.title,
-      subtitle: cfg.subtitle,
-      logoDataUri,
-      customIcon: cfg.customIcon,
-    });
+    counts.updated += 1;
+    if (args.dryRun) {
+      progress("[DRY]", meta.project, "would regenerate header", "yellow");
+      continue;
+    }
 
     fs.writeFileSync(bannerPath, svg, "utf8");
-    updateReadme(readmePath);
-    updated += 1;
-    progress("[UPDATED]", repo, "header generated", "cyan");
+    if (nextReadme !== currentReadme) {
+      fs.writeFileSync(readmePath, nextReadme, "utf8");
+    }
+    progress("[UPDATED]", meta.project, "header generated", "cyan");
   }
 
-  summaryBox("Template Header Generation Summary", [`Updated: ${updated}`]);
+  return counts;
+}
+
+function main() {
+  const args = parseArgs(process.argv.slice(2));
+  info("Generating flat template header SVGs");
+
+  const counts = generateHeaders(args);
+
+  if (counts.updated + counts.unchanged + counts.skipped === 0) {
+    warn(
+      "No template metadata found. Run `git submodule update --init --recursive` " +
+        "so the template repos are on disk."
+    );
+  }
+
+  summaryBox("Template Header Generation Summary", [
+    `Updated: ${counts.updated}`,
+    `Unchanged: ${counts.unchanged}`,
+    `Skipped (missing README): ${counts.skipped}`,
+  ]);
   success("Template header generation completed");
 }
 
-try {
-  main();
-} catch (err) {
-  error(err.message);
-  process.exit(1);
+if (import.meta.url === `file://${process.argv[1]}`) {
+  try {
+    main();
+  } catch (err) {
+    error(err.message);
+    process.exit(1);
+  }
 }

@@ -1,0 +1,121 @@
+{
+  "$comment": "Generated cache - run `pnpm templates:registry:sync`. Source of truth is each repo's railway-template.json.",
+  "schemaVersion": 1,
+  "badges": {
+    "railwayapp-airbyte": {
+      "label": "Airbyte",
+      "color": "615EFF",
+      "logo": "airbyte"
+    },
+    "railwayapp-airflow": {
+      "label": "Apache Airflow",
+      "color": "017CEE",
+      "logo": "apacheairflow"
+    },
+    "railwayapp-codimd": {
+      "label": "CodiMD",
+      "color": "0F766E",
+      "logo": "markdown"
+    },
+    "railwayapp-django": {
+      "label": "Django",
+      "color": "092E20",
+      "logo": "django"
+    },
+    "railwayapp-email": {
+      "label": "Email Service",
+      "color": "2563EB",
+      "logo": "maildotru"
+    },
+    "railwayapp-fastapi": {
+      "label": "FastAPI",
+      "color": "009688",
+      "logo": "fastapi"
+    },
+    "railwayapp-flask": {
+      "label": "Flask",
+      "color": "3fad48",
+      "logo": "flask"
+    },
+    "railwayapp-flowise": {
+      "label": "Flowise",
+      "color": "4F46E5",
+      "logo": "nodedotjs"
+    },
+    "railwayapp-gitlab": {
+      "label": "GitLab CE",
+      "color": "FC6D26",
+      "logo": "gitlab"
+    },
+    "railwayapp-grafana": {
+      "label": "Grafana",
+      "color": "F46800",
+      "logo": "grafana"
+    },
+    "railwayapp-homeassistant": {
+      "label": "Home Assistant",
+      "color": "18BCF2",
+      "logo": "homeassistant"
+    },
+    "railwayapp-influxdb": {
+      "label": "InfluxDB",
+      "color": "22ADF6",
+      "logo": "influxdb"
+    },
+    "railwayapp-mjml": {
+      "label": "MJML",
+      "color": "F45E43",
+      "logo": "mjml"
+    },
+    "railwayapp-mongodb": {
+      "label": "MongoDB",
+      "color": "47A248",
+      "logo": "mongodb"
+    },
+    "railwayapp-mqtt": {
+      "label": "Mosquitto MQTT",
+      "color": "3C5280",
+      "logo": "eclipsemosquitto"
+    },
+    "railwayapp-mysql": {
+      "label": "MySQL",
+      "color": "4479A1",
+      "logo": "mysql"
+    },
+    "railwayapp-n8n": {
+      "label": "n8n",
+      "color": "EA4B71",
+      "logo": "n8n"
+    },
+    "railwayapp-nodejs": {
+      "label": "Node.js",
+      "color": "339933",
+      "logo": "nodedotjs"
+    },
+    "railwayapp-nodered": {
+      "label": "Node-RED",
+      "color": "8F0000",
+      "logo": "nodered"
+    },
+    "railwayapp-opensearch": {
+      "label": "OpenSearch",
+      "color": "005EB8",
+      "logo": "opensearch"
+    },
+    "railwayapp-postgresql": {
+      "label": "PostgreSQL",
+      "color": "4169E1",
+      "logo": "postgresql"
+    },
+    "railwayapp-redis": {
+      "label": "Redis",
+      "color": "DC382D",
+      "logo": "redis"
+    },
+    "railwayapp-typo3": {
+      "label": "TYPO3 CMS",
+      "color": "FF8700",
+      "logo": "typo3"
+    }
+  }
+}

@@ -7,6 +7,9 @@ on:
     paths:
       - "scripts/verify-railway-template-drafts.mjs"
       - "scripts/railway-template-targets.mjs"
+      - "scripts/sync-template-registry.mjs"
+      - "scripts/lib/template-registry.mjs"
+      - "docs/railway-templates-registry.json"
       - "railwayapp-**/railway-template.json"
       - ".github/workflows/railway-template-drafts-check.yml"
       - "package.json"
@@ -19,6 +22,36 @@ permissions:
   contents: read
 
 jobs:
+  # Badge drift is checkable without Railway access, so this runs as its own job and does not
+  # depend on RAILWAY_TOKEN. It needs a recursive checkout: only with every submodule on disk can
+  # a stale cache entry actually be detected.
+  verify-badge-registry:
+    name: Verify Template Badge Registry
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULES_PAT || github.token }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 25
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check badge registry is in sync
+        run: pnpm run templates:registry:check
+
   verify-drafts:
     name: Verify Railway Template Drafts
     runs-on: ubuntu-latest

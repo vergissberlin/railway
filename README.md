@@ -87,6 +87,29 @@ git push
 Repository-level automation and instructions must only target Railway templates listed in `.gitmodules`.
 If a repository is not listed there, it is considered out of scope unless explicitly requested.
 
+## Adding a new template
+
+`pnpm templates:create` scaffolds a complete `railwayapp-<slug>` repository — Dockerfile, `railway.toml`, `railway-template.json`, the generated header banner, release-please and renovate config. It is a dry run unless you pass `--apply`:
+
+```bash
+pnpm templates:create -- --help                                # all options
+pnpm templates:create -- --spec /tmp/uptime-kuma.json          # review the file list
+pnpm templates:create -- --spec /tmp/uptime-kuma.json --apply  # write it
+```
+
+After the repo exists and is registered as a submodule, refresh the generated presentation files:
+
+```bash
+pnpm templates:headers -- --only railwayapp-<slug>   # regenerate template-header.svg
+pnpm templates:registry:sync:apply                   # cache the badge in docs/railway-templates-registry.json
+pnpm templates:footers                               # regenerate footer.md and the README footers
+pnpm templates:registry:check                        # CI guard: fails on a stale or incomplete cache
+```
+
+Banner titles, logos and footer badges come from each repo's `railway-template.json` — there is no hardcoded per-template list in the scripts. See **[docs/railway-template-metadata.md](./docs/railway-template-metadata.md)**.
+
+The whole flow, including publishing, is driven end to end by the **`railway-template-anlegen`** skill in `.claude/skills/`.
+
 ## Publishing template drafts (API / UI)
 
 If **Publish** on the Railway workspace templates page fails, see **[docs/railway-template-publish.md](./docs/railway-template-publish.md)** for GraphQL limits (`description` length, `traceId`, support path).
