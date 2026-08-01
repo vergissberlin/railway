@@ -6,6 +6,11 @@ import os from "node:os";
 import path from "node:path";
 import { error, header, info, success, summaryBox, table, warn } from "./misc-cli-utils.mjs";
 import { getRailwayTemplateTargets } from "./railway-template-targets.mjs";
+import {
+  buildVerifyResult,
+  collectRepos,
+  formatVerifyFailures,
+} from "./lib/railway-draft-verify.mjs";
 
 loadRailwayDotenv();
 
@@ -13,7 +18,7 @@ const GRAPHQL_URL = "https://backboard.railway.app/graphql/v2";
 const WORKSPACE_ID = "ae04726a-4471-430c-85e5-0bb2f83791fb";
 
 const TARGETS = getRailwayTemplateTargets().map((t) => ({
-  projectName: t.project,
+  project: t.project,
   repo: t.repo,
   publishedCode: t.publishedCode,
 }));
@@ -57,30 +62,6 @@ async function gql(token, query, variables = {}) {
     throw new Error(detail);
   }
   return json.data;
-}
-
-function collectRepos(value, sink = new Set()) {
-  if (!value || typeof value !== "object") return sink;
-  if (Array.isArray(value)) {
-    for (const item of value) collectRepos(item, sink);
-    return sink;
-  }
-  for (const [k, v] of Object.entries(value)) {
-    if (k === "repo" && typeof v === "string") {
-      sink.add(v.trim());
-      continue;
-    }
-    collectRepos(v, sink);
-  }
-  return sink;
-}
-
-function normalizeRepo(repo) {
-  if (!repo || typeof repo !== "string") return "";
-  return repo
-    .trim()
-    .replace(/^https?:\/\/github\.com\//, "")
-    .replace(/\.git$/, "");
 }
 
 async function main() {
@@ -150,105 +131,39 @@ async function main() {
     }
   }
 
-  const rows = [];
-  const jsonRows = [];
-  let passCount = 0;
-
-  for (const t of TARGETS) {
-    const repoNorm = normalizeRepo(t.repo);
-    let p = null;
-    for (const edge of projectsData.projects.edges ?? []) {
-      const node = edge.node;
-      for (const envEdge of node.environments?.edges ?? []) {
-        for (const siEdge of envEdge.node.serviceInstances?.edges ?? []) {
-          if (normalizeRepo(siEdge.node?.source?.repo ?? "") === repoNorm) {
-            p = node;
-            break;
-          }
-        }
-        if (p) break;
-      }
-      if (p) break;
-    }
-    const env = p?.environments?.edges?.find((e) => e.node.name === "production")?.node ?? p?.environments?.edges?.[0]?.node;
-    const instance = env?.serviceInstances?.edges?.find((e) => e.node.serviceName === t.projectName)?.node ?? env?.serviceInstances?.edges?.[0]?.node;
-    const sourceRepo = normalizeRepo(instance?.source?.repo ?? "");
-
-    const forRepo = templates.filter((x) => (x.repos ?? []).map(normalizeRepo).includes(repoNorm));
-
-    const draftMatches = forRepo
-      .filter((x) => x.status === "UNPUBLISHED")
-      .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
-
-    const publishedMatches = forRepo.filter((x) => x.status === "PUBLISHED");
-
-    const draftCount = draftMatches.length;
-    const publishedCount = publishedMatches.length;
-    const activeDraft = draftMatches[0];
-    const activePublished = publishedMatches[0];
-
-    const draftCode = activeDraft?.code ?? "-";
-    const publishedCode = activePublished?.code ?? "-";
-
-    const sourceOk = sourceRepo === repoNorm;
-    /** One unpublished draft, or exactly one published template (no duplicate repo rows). */
-    const draftOk =
-      (draftCount === 1 && publishedCount === 0) || (draftCount === 0 && publishedCount === 1);
-    const codeOk =
-      publishedCount === 1
-        ? publishedCode === t.publishedCode
-        : draftCount === 1;
-    const allOk = sourceOk && draftOk && codeOk;
-    if (allOk) passCount += 1;
-
-    const codeLabel =
-      publishedCount === 1 ? `${publishedCode} (published)` : draftCode === "-" ? "-" : `${draftCode} (draft)`;
-
-    jsonRows.push({
-      project: t.projectName,
-      source: sourceOk ? "ok" : "bad",
-      draft: draftOk ? "ok" : `drafts=${draftCount} published=${publishedCount}`,
-      code: codeOk ? "ok" : `${codeLabel} (exp published ${t.publishedCode} or one draft)`,
-      ok: allOk,
-      expectedPublishedCode: t.publishedCode,
-      actualDraftCode: draftCode,
-      actualPublishedCode: publishedCode,
-      sourceRepo,
-    });
-
-    rows.push([
-      t.projectName,
-      sourceOk ? "ok" : "bad",
-      draftOk ? "ok" : `drafts=${draftCount} pub=${publishedCount}`,
-      codeOk ? "ok" : `mismatch (${codeLabel})`,
-    ]);
-  }
-
-  const result = {
-    workspaceId: WORKSPACE_ID,
-    targets: TARGETS.length,
-    passed: passCount,
-    failed: TARGETS.length - passCount,
-    ok: passCount === TARGETS.length,
-    checks: jsonRows,
-  };
+  const result = buildVerifyResult(TARGETS, projectsData.projects.edges ?? [], templates, WORKSPACE_ID);
 
   if (opts.json) {
     console.log(JSON.stringify(result, null, 2));
+    // stdout is the report file in CI, so the reason has to go to stderr to reach the run log.
+    const failures = formatVerifyFailures(result);
+    if (failures.length) {
+      console.error(`::error::${failures[0]}`);
+      for (const line of failures.slice(1)) console.error(line);
+    }
   } else {
     info(`Workspace: ${WORKSPACE_ID}`);
-    table(["Project", "Source", "Draft", "Code"], rows);
+    table(
+      ["Project", "Source", "Draft", "Code"],
+      result.checks.map((c) => [
+        c.project,
+        c.source,
+        c.draft === "ok" ? "ok" : c.draft.replace("published=", "pub="),
+        c.code === "ok" ? "ok" : `mismatch (${c.code})`,
+      ])
+    );
 
     summaryBox("Verify Summary", [
-      `Targets: ${TARGETS.length}`,
-      `Passed: ${passCount}`,
-      `Failed: ${TARGETS.length - passCount}`,
+      `Targets: ${result.targets}`,
+      `Passed: ${result.passed}`,
+      `Failed: ${result.failed}`,
     ]);
 
     if (result.ok) {
       success("All Railway template draft checks passed.");
       return;
     }
+    for (const line of formatVerifyFailures(result).slice(1)) warn(line);
     warn("Some checks failed. Re-run source/draft sync if needed.");
   }
   process.exitCode = result.ok ? 0 : 1;
