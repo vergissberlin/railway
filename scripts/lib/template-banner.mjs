@@ -22,6 +22,23 @@ export const DEFAULT_SUBTITLE = "Railway Template";
 const FONT_STACK = "Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif";
 
 /**
+ * Every template repo keeps the software logo at its root as `logo-<slug>.png` (an `.svg` is
+ * equally welcome and stays far smaller once inlined). The fixed name is what lets a generator
+ * run, a reviewer or a follow-up agent find the logo without reading `railway-template.json`
+ * first, so a deviating name is reported instead of silently accepted.
+ */
+export const LOGO_FILE_PATTERN = /^logo-[a-z0-9]+(?:-[a-z0-9]+)*\.(?:png|svg)$/;
+
+/**
+ * @param {string} slug template slug, e.g. `uptime-kuma`
+ * @param {string} ext extension including the dot, e.g. `.png`
+ * @returns {string} conventional logo filename for that template
+ */
+export function logoFileNameFor(slug, ext) {
+  return `logo-${slug}${ext.toLowerCase()}`;
+}
+
+/**
  * @param {string} file
  * @returns {string}
  */
@@ -152,12 +169,25 @@ export function buildBannerForRepo({ repoPath, title, subtitle, logoFile, custom
   let logoDataUri = "";
 
   if (logoFile) {
+    if (!LOGO_FILE_PATTERN.test(logoFile)) {
+      warnings.push(
+        `logoFile "${logoFile}" breaks the naming convention: use logo-<slug>.png (or .svg) at the repo root`
+      );
+    }
     const logoPath = path.join(repoPath, logoFile);
     if (fs.existsSync(logoPath)) {
       logoDataUri = toDataUri(logoPath);
     } else {
       warnings.push(`Missing logo file: ${logoFile}`);
     }
+  }
+
+  // Neither a logo nor a deliberate fallback mark means nobody has looked for the software's logo
+  // yet — the banner still renders from initials, but that is a gap to close, not a valid state.
+  if (!logoFile && !customIcon) {
+    warnings.push(
+      "No logoFile or customIcon declared: find the official logo (max 256px) and commit it as logo-<slug>.png"
+    );
   }
 
   if (!logoDataUri && customIcon && !customIconSvg(customIcon)) {

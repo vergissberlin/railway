@@ -24,6 +24,7 @@ import {
   BANNER_FILENAME,
   DEFAULT_SUBTITLE,
   buildBannerForRepo,
+  logoFileNameFor,
 } from "./lib/template-banner.mjs";
 import {
   DEPLOY_CODE_PLACEHOLDER,
@@ -179,7 +180,7 @@ export function planScaffold(args) {
     if (!fs.existsSync(args.logo)) {
       throw new Error(`Logo file not found: ${args.logo}`);
     }
-    logoTarget = `logo-${spec.slug}${ext}`;
+    logoTarget = logoFileNameFor(spec.slug, ext);
 
     // Keep railway-template.json in step so the header generator finds the logo on later runs.
     const meta = JSON.parse(files.get("railway-template.json"));
@@ -264,6 +265,14 @@ function main() {
     `Files: ${plan.files.size + (plan.logoTarget ? 1 : 0)}`,
     args.apply ? "Mode: applied" : "Mode: dry run (pass --apply to write)",
   ]);
+
+  if (!plan.logoTarget) {
+    warn(
+      `No --logo passed, so the banner falls back to a generic mark. Look up the official logo ` +
+        `(max 256px), save it as ${logoFileNameFor(plan.spec.slug, ".png")} in the repo and ` +
+        "re-run `pnpm templates:headers`."
+    );
+  }
 
   warn(
     `The README deploy button still contains ${DEPLOY_CODE_PLACEHOLDER}. ` +

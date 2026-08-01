@@ -21,13 +21,13 @@ Marketplace-Eintrag. Gearbeitet wird immer aus dem Hub-Repo heraus (lokal meist
 `~/railway`, in Remote-Sessions `/home/user/railway`) - dort liegen die Skripte, `.gitmodules`,
 die Badge-Registry und der `RAILWAY_TOKEN`.
 
-Lies zuerst `AGENT.md` im Hub-Root, dann `docs/railway-template-metadata.md` und
+Lies zuerst `AGENTS.md` im Hub-Root, dann `docs/railway-template-metadata.md` und
 `docs/railway-template-publish.md`. Diese drei Dateien sind die Quelle der Wahrheit für
 Konventionen, Pflichtfelder und bekannte Publish-Fehler - widerspricht dieser Skill ihnen,
 gewinnen sie.
 
 **Sprache:** Die Abstimmung mit dem Nutzer läuft auf Deutsch, alles was in ein Repository wandert
-ist Englisch - README, Kommentare, Commit-Messages, PR-Texte (`AGENT.md`: "Write documentation in
+ist Englisch - README, Kommentare, Commit-Messages, PR-Texte (`AGENTS.md`: "Write documentation in
 English", "Use Conventional Commits in English").
 
 Die Reihenfolge der Schritte ist keine Stilfrage: Die Publish-Skripte lesen
@@ -52,8 +52,11 @@ Default:
   das im Zwischenbericht.
 - **Kurzbeschreibung**: schreibst du selbst, Englisch, **25-75 Zeichen nach Trim** - Railways
   `templatePublish` lehnt kürzere und längere Texte ab.
-- **Logo**: SVG oder PNG mit maximal 256 px Kantenlänge (Begründung in Schritt 3). Ohne Logo
-  `customIcon` aus `scripts/lib/template-banner.mjs` wählen.
+- **Logo**: gehört zu jedem Template. Bringt das Repo keins mit, wird das offizielle Logo im
+  Internet gesucht und als `logo-<slug>.png` mitcommittet — maximal 256 px, quadratisch. Quellen und
+  Prüfschritte stehen in `references/logo-beschaffung.md`, die Beschaffung selbst ist Schritt 3.
+  `customIcon` aus `scripts/lib/template-banner.mjs` ist nur die Notlösung für Software ohne
+  verteilbare Marke.
 - **Badge**: Markenfarbe als 6-stelliger Hex-Wert plus [simple-icons](https://simpleicons.org)-Slug.
 
 Frag nur nach, was wirklich fehlt - nicht nach Dingen, die schon feststehen, und nicht nach
@@ -91,10 +94,24 @@ Bei `entrypoint` wird ein `railway-entrypoint.sh` erzeugt, das die Variable setz
 der Privilegien-Wechsel erhalten. Details und eine erweiterbare Lookup-Tabelle stehen in
 `references/laufzeit-muster.md`. Lies die Datei, bevor du dich entscheidest.
 
-## Schritt 3: Repo scaffolden
+## Schritt 3: Logo beschaffen und Repo scaffolden
 
-Schreib die gesammelten Werte in eine Spec-Datei und lass erst den Dry-run laufen - er schreibt
-nichts:
+Zuerst das Logo, denn `templates:create` bettet es direkt ins Banner ein - kommt es später, muss das
+Banner neu gebaut werden. Hol das offizielle Logo aus dem Upstream-Repo (PWA- und Touch-Icons wie
+`apple-touch-icon.png` sind meist quadratisch und schon klein genug):
+
+```bash
+curl -sSL -o /tmp/logo-<slug>.png \
+  "https://raw.githubusercontent.com/<org>/<repo>/main/public/img/apple-touch-icon.png"
+file /tmp/logo-<slug>.png
+```
+
+`references/logo-beschaffung.md` listet die Quellen in Reihenfolge, die Größenprüfung und die
+rechtlichen Grenzen. Lies die Datei, bevor du auf `customIcon` ausweichst - ein Template ohne Logo
+ist ein Befund, den du meldest, kein Default.
+
+Dann die gesammelten Werte in eine Spec-Datei schreiben und erst den Dry-run laufen lassen - er
+schreibt nichts:
 
 ```bash
 pnpm templates:create -- --spec /tmp/<slug>.json
@@ -103,8 +120,12 @@ pnpm templates:create -- --spec /tmp/<slug>.json
 Prüfe die Dateiliste, dann anwenden und das Logo mitgeben:
 
 ```bash
-pnpm templates:create -- --spec /tmp/<slug>.json --logo /tmp/<slug>.svg --apply
+pnpm templates:create -- --spec /tmp/<slug>.json --logo /tmp/logo-<slug>.png --apply
 ```
+
+Die CLI kopiert die Datei als `logo-<slug>.png` ins Repo-Root und setzt `logoFile` - der Name ist
+Konvention und wird vom Schema erzwungen, benenne ihn also nicht um. Ohne `--logo` warnt sie, dass
+das Banner auf eine generische Marke zurückfällt.
 
 `pnpm templates:create -- --help` listet alle Optionen. Die CLI validiert Slug-Form, Portbereich
 und Beschreibungslänge vorab - ein früher Fehler ist besser als eine abgelehnte
@@ -199,6 +220,9 @@ aktualisieren.
 | Name oder `publishedCode` schon belegt | Mit dem Nutzer klären, nicht selbst eine Variante erfinden |
 | `Missing badge data for …` | Dem Repo ein `badge`-Feld geben und `pnpm templates:registry:sync:apply` laufen lassen |
 | `template-header.svg` deutlich über 20 KB | Logo zu groß, weil base64 inline. Kleineres Logo nehmen, `pnpm templates:headers` erneut |
+| Kein Logo im Upstream-Repo zu finden | Quellen in `references/logo-beschaffung.md` abarbeiten. Erst danach `customIcon` setzen **und** die Lücke im Bericht nennen |
+| `logoFile … breaks the naming convention` | Datei nach `logo-<slug>.png` umbenennen, `logoFile` mitziehen, `pnpm templates:headers` erneut |
+| `CONNECT tunnel failed, response 403` beim Logo-Download | Proxy-Policy, nicht tote URL. Nur GitHub-Hosts sind erreichbar - Upstream-Repo statt Brand-Seite, TLS nie abschalten |
 | Deployment antwortet "Application failed to respond" | `$PORT` nicht gemappt. Zurück zu Schritt 2 |
 | Submodule nicht ausgecheckt | Nur ausgecheckte Submodule lassen sich in dieser Session ändern. Als manuellen Schritt vermerken statt es zu erzwingen |
 | GitHub-Tool nicht gefunden | Über `ToolSearch` nachladen, Tool-IDs nie hartkodieren |
@@ -214,5 +238,7 @@ verkaufen.
 
 - `references/laufzeit-muster.md` — die drei `$PORT`-Strategien im Vergleich plus Lookup-Tabelle
   Software → Bind-Variable / Healthcheck-Pfad / Datenverzeichnis. Lies das in Schritt 2.
+- `references/logo-beschaffung.md` — woher das Logo kommt, wie es heißen muss, wie du Größe und
+  Rechte prüfst. Lies das in Schritt 3.
 - `docs/railway-template-metadata.md` (Hub) — Feldreferenz und Badge-Registry.
 - `docs/railway-template-publish.md` (Hub) — Publish-Troubleshooting mit allen GraphQL-Details.

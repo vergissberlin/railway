@@ -72,10 +72,11 @@ Applies to: `railwayapp-**/railway-template.json`
 
 | Field | Rules |
 | --- | --- |
-| `logoFile` | Repo-relative `.svg`/`.png` inlined into `template-header.svg`. Keep it to an SVG or a PNG of at most 256px — the banner is also the marketplace image. |
+| `logoFile` | Repo-root logo named **`logo-<slug>.png`** (`.svg` also fine), inlined into `template-header.svg`. Keep it to an SVG or a PNG of at most 256px — the banner is also the marketplace image. |
 | `customIcon` | Built-in fallback mark used only when there is no `logoFile`. Valid names live in `scripts/lib/template-banner.mjs`. |
 | `badge` | `{ label, color, logo }` for the shared footer. `color` is 6 hex digits without `#`, `logo` is a simple-icons slug. |
 
+- Every template is expected to carry its software's logo. If the repo has none, look the official one up on the internet (upstream repo or brand page, max 256px) and commit it as `logo-<slug>.png` — see `.agents/skills/railway-template-anlegen/references/logo-beschaffung.md`. `customIcon` is for software without a distributable mark, not a way to skip the search.
 - These replace the former hardcoded maps in `scripts/generate-template-headers.mjs` and `scripts/update-template-footers.mjs`. Do **not** reintroduce a per-template list in either script.
 - `docs/railway-templates-registry.json` is a **generated cache** of the badge data, needed because the footer spans all templates while a checkout usually has only a few. Never hand-edit it: change `badge` here, then run `pnpm templates:registry:sync:apply`.
 

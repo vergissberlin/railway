@@ -8,11 +8,13 @@ import {
   BANNER_FILENAME,
   DEFAULT_SUBTITLE,
   HEADER_IMAGE_MARKDOWN,
+  LOGO_FILE_PATTERN,
   applyHeaderImage,
   buildBanner,
   buildBannerForRepo,
   customIconSvg,
   knownCustomIcons,
+  logoFileNameFor,
   mimeFor,
   toDataUri,
 } from "../scripts/lib/template-banner.mjs";
@@ -92,11 +94,59 @@ test("buildBannerForRepo warns instead of throwing on a missing logo", () => {
   const { svg, warnings } = buildBannerForRepo({
     repoPath: tempRepo(),
     title: "X",
-    logoFile: "nope.png",
+    logoFile: "logo-missing.png",
   });
   assert.equal(warnings.length, 1);
   assert.match(warnings[0], /Missing logo file/);
   assert.ok(svg.includes("<svg"), "a banner is still produced so a bulk run continues");
+});
+
+test("logoFileNameFor builds the conventional name and normalises the extension", () => {
+  assert.equal(logoFileNameFor("uptime-kuma", ".png"), "logo-uptime-kuma.png");
+  assert.equal(logoFileNameFor("grafana", ".SVG"), "logo-grafana.svg");
+});
+
+test("LOGO_FILE_PATTERN accepts the convention and rejects legacy names", () => {
+  for (const name of ["logo-grafana.png", "logo-uptime-kuma.svg", "logo-n8n.png"]) {
+    assert.ok(LOGO_FILE_PATTERN.test(name), `${name} should be accepted`);
+  }
+  for (const name of [
+    "railwayapp-grafana.png", // the pre-convention name
+    "logo.png", // no slug
+    "Logo-Grafana.png", // uppercase
+    "assets/logo-grafana.png", // not at the repo root
+    "logo-grafana.webp", // unsupported format
+  ]) {
+    assert.ok(!LOGO_FILE_PATTERN.test(name), `${name} should be rejected`);
+  }
+});
+
+test("buildBannerForRepo warns about a logo that ignores the naming convention", () => {
+  const dir = tempRepo();
+  fs.writeFileSync(path.join(dir, "railwayapp-grafana.png"), "png-bytes");
+  const { svg, warnings } = buildBannerForRepo({
+    repoPath: dir,
+    title: "Grafana",
+    logoFile: "railwayapp-grafana.png",
+  });
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /naming convention/);
+  assert.ok(svg.includes("data:image/png;base64,"), "the logo is still inlined");
+});
+
+test("buildBannerForRepo flags a template with neither logo nor fallback icon", () => {
+  const { warnings } = buildBannerForRepo({ repoPath: tempRepo(), title: "X" });
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /No logoFile or customIcon/);
+});
+
+test("buildBannerForRepo stays quiet for a deliberate customIcon fallback", () => {
+  const { warnings } = buildBannerForRepo({
+    repoPath: tempRepo(),
+    title: "Redis",
+    customIcon: "redis",
+  });
+  assert.deepEqual(warnings, [], "a declared fallback is a decision, not a gap");
 });
 
 test("buildBannerForRepo warns about an unknown customIcon", () => {
