@@ -112,7 +112,7 @@ test("buildTemplateFiles produces the expected file set", () => {
     "docker-compose.yml",
     "railway.toml",
     "railway-template.json",
-    "AGENT.md",
+    "AGENTS.md",
     "CONTRIBUTING.md",
     "LICENSE",
     "CHANGELOG.md",
@@ -281,9 +281,10 @@ test("README falls back to a note when there are no required variables", () => {
   );
 });
 
-test("AGENT.md and CONTRIBUTING.md are scoped to the new repo", () => {
+test("AGENTS.md and CONTRIBUTING.md are scoped to the new repo", () => {
   const { files } = buildTemplateFiles(spec());
-  assert.match(files.get("AGENT.md"), /These rules apply to `railwayapp-uptime-kuma`/);
+  assert.match(files.get("AGENTS.md"), /These rules apply to `railwayapp-uptime-kuma`/);
+  assert.match(files.get("AGENTS.md"), /^# AGENTS\.md/);
   assert.match(files.get("CONTRIBUTING.md"), /cd railwayapp-uptime-kuma/);
   assert.match(files.get("LICENSE"), /MIT License/);
 });

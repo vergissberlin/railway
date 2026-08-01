@@ -436,7 +436,7 @@ function renderReleasePleaseConfig(s) {
 
 /** @param {ReturnType<typeof normalizeSpec>} s */
 function renderAgentMd(s) {
-  return `# AGENT.md
+  return `# AGENTS.md
 
 ## Purpose
 
@@ -445,7 +445,7 @@ This file defines template-specific agent conventions for this Railway app.
 ## Scope
 
 These rules apply to \`${s.project}\`.
-The workspace root \`AGENT.md\` also applies.
+The workspace root \`AGENTS.md\` also applies.
 
 ## Conventions
 
@@ -569,7 +569,7 @@ export function buildTemplateFiles(rawSpec) {
   files.set("docker-compose.yml", renderDockerCompose(s));
   files.set("railway.toml", renderRailwayToml(s));
   files.set("railway-template.json", renderTemplateJson(s));
-  files.set("AGENT.md", renderAgentMd(s));
+  files.set("AGENTS.md", renderAgentMd(s));
   files.set("CONTRIBUTING.md", renderContributing(s));
   files.set("LICENSE", renderLicense(s));
   files.set(
