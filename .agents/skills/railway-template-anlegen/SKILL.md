@@ -21,13 +21,13 @@ Marketplace-Eintrag. Gearbeitet wird immer aus dem Hub-Repo heraus (lokal meist
 `~/railway`, in Remote-Sessions `/home/user/railway`) - dort liegen die Skripte, `.gitmodules`,
 die Badge-Registry und der `RAILWAY_TOKEN`.
 
-Lies zuerst `AGENT.md` im Hub-Root, dann `docs/railway-template-metadata.md` und
+Lies zuerst `AGENTS.md` im Hub-Root, dann `docs/railway-template-metadata.md` und
 `docs/railway-template-publish.md`. Diese drei Dateien sind die Quelle der Wahrheit für
 Konventionen, Pflichtfelder und bekannte Publish-Fehler - widerspricht dieser Skill ihnen,
 gewinnen sie.
 
 **Sprache:** Die Abstimmung mit dem Nutzer läuft auf Deutsch, alles was in ein Repository wandert
-ist Englisch - README, Kommentare, Commit-Messages, PR-Texte (`AGENT.md`: "Write documentation in
+ist Englisch - README, Kommentare, Commit-Messages, PR-Texte (`AGENTS.md`: "Write documentation in
 English", "Use Conventional Commits in English").
 
 Die Reihenfolge der Schritte ist keine Stilfrage: Die Publish-Skripte lesen
