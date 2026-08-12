@@ -102,6 +102,11 @@
       "color": "005EB8",
       "logo": "opensearch"
     },
+    "railwayapp-openwebui": {
+      "label": "Open WebUI",
+      "color": "D68E42",
+      "logo": "ollama"
+    },
     "railwayapp-postgresql": {
       "label": "PostgreSQL",
       "color": "4169E1",
