@@ -67,3 +67,6 @@
 [submodule "railwayapp-mjml"]
 	path = railwayapp-mjml
 	url = git@github.com:vergissberlin/railwayapp-mjml.git
+[submodule "railwayapp-openwebui"]
+	path = railwayapp-openwebui
+	url = git@github.com:vergissberlin/railwayapp-openwebui.git
