@@ -31,7 +31,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@11.18.0",
+  "packageManager": "pnpm@11.21.0",
   "dependencies": {
     "boxen": "^8.0.1",
     "chalk": "^6.0.0",
