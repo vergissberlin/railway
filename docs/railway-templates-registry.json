@@ -107,6 +107,11 @@
       "color": "D68E42",
       "logo": "ollama"
     },
+    "railwayapp-outerbase-studio": {
+      "label": "Outerbase Studio",
+      "color": "000000",
+      "logo": "outerbase"
+    },
     "railwayapp-postgresql": {
       "label": "PostgreSQL",
       "color": "4169E1",
