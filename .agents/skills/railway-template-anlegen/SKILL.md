@@ -179,6 +179,12 @@ pnpm templates:footers                               # footer.md + READMEs aktua
 gewollt, nicht kaputt. Die Badge-Registry ist ein generierter Cache: nie mit der Hand editieren,
 immer das `badge`-Feld im Template-Repo ändern und neu syncen.
 
+**Root-`README.md` des Hubs von Hand nachziehen.** `templates:footers` aktualisiert nur `footer.md`
+und die READMEs der einzelnen Template-Repos - die Liste unter "Included template submodules" in
+`<hub>/README.md` ist keine generierte Datei und wird von keinem Skript angefasst. Neuen Eintrag
+`` `railwayapp-<slug>` `` alphabetisch einsortieren, sonst driftet die Liste bei jedem neuen
+Template weiter auseinander (das ist schon mehrfach passiert).
+
 Danach im Hub committen (`chore: add railwayapp-<slug> submodule and badge`) und pushen. Läuft die
 Arbeit auf einem `claude/*`-Branch, gehört ein Draft-PR dazu.
 
