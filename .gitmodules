@@ -73,3 +73,6 @@
 [submodule "railwayapp-outerbase-studio"]
 	path = railwayapp-outerbase-studio
 	url = git@github.com:vergissberlin/railwayapp-outerbase-studio.git
+[submodule "railwayapp-cloudbeaver-ce"]
+	path = railwayapp-cloudbeaver-ce
+	url = git@github.com:vergissberlin/railwayapp-cloudbeaver-ce.git

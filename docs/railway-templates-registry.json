@@ -12,6 +12,11 @@
       "color": "017CEE",
       "logo": "apacheairflow"
     },
+    "railwayapp-cloudbeaver-ce": {
+      "label": "CloudBeaver",
+      "color": "382923",
+      "logo": "dbeaver"
+    },
     "railwayapp-codimd": {
       "label": "CodiMD",
       "color": "0F766E",
