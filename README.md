@@ -15,6 +15,7 @@ Each `railwayapp-*` folder is an independent Git repository included here as a G
 
 - `railwayapp-airbyte`
 - `railwayapp-airflow`
+- `railwayapp-cloudbeaver-ce`
 - `railwayapp-codimd`
 - `railwayapp-django`
 - `railwayapp-email`
@@ -33,6 +34,8 @@ Each `railwayapp-*` folder is an independent Git repository included here as a G
 - `railwayapp-nodered`
 - `railwayapp-nodejs`
 - `railwayapp-opensearch`
+- `railwayapp-openwebui`
+- `railwayapp-outerbase-studio`
 - `railwayapp-postgresql`
 - `railwayapp-redis`
 - `railwayapp-typo3`
