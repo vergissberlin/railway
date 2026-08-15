@@ -186,6 +186,9 @@ export function planScaffold(args) {
     const meta = JSON.parse(files.get("railway-template.json"));
     meta.logoFile = logoTarget;
     delete meta.customIcon;
+    // The marketplace card renders `image` as a square icon, not a banner. The wide
+    // template-header.svg (1280x270) looks broken there, so point at the actual logo instead.
+    meta.image = `https://raw.githubusercontent.com/${spec.owner}/${spec.project}/main/${logoTarget}`;
     files.set("railway-template.json", `${JSON.stringify(meta, null, 2)}\n`);
   }
 
