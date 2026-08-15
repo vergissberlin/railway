@@ -123,9 +123,16 @@ Prüfe die Dateiliste, dann anwenden und das Logo mitgeben:
 pnpm templates:create -- --spec /tmp/<slug>.json --logo /tmp/logo-<slug>.png --apply
 ```
 
-Die CLI kopiert die Datei als `logo-<slug>.png` ins Repo-Root und setzt `logoFile` - der Name ist
-Konvention und wird vom Schema erzwungen, benenne ihn also nicht um. Ohne `--logo` warnt sie, dass
-das Banner auf eine generische Marke zurückfällt.
+Die CLI kopiert die Datei als `logo-<slug>.png` ins Repo-Root, setzt `logoFile` und zeigt `image`
+auf genau diese Datei - der Name ist Konvention und wird vom Schema erzwungen, benenne ihn also
+nicht um. Ohne `--logo` warnt sie, dass das Banner auf eine generische Marke zurückfällt.
+
+**`image` ist die quadratische Marketplace-Kachel, nicht der README-Banner.** Railway rendert
+`image` als kleines Quadrat auf der Template-Karte - das 1280×270-Banner (`template-header.svg`)
+sieht dort abgeschnitten/kaputt aus (nur ein schmaler Streifen links). `image` muss deshalb immer
+auf die Logo-Datei zeigen (`logo-<slug>.svg`/`.png`), nie auf `template-header.svg`. Das ist ein
+mehrfach aufgetretener Fehler, kein Einzelfall - beim Kontrollieren am Ende von Schritt 3 immer
+mitprüfen.
 
 `pnpm templates:create -- --help` listet alle Optionen. Die CLI validiert Slug-Form, Portbereich
 und Beschreibungslänge vorab - ein früher Fehler ist besser als eine abgelehnte
@@ -203,6 +210,18 @@ pnpm templates:sync:apply      # templateGenerate -> Draft
 pnpm templates:publish:apply   # templatePublish  -> öffentlich
 pnpm templates:verify          # Konsistenzprüfung
 ```
+
+**`workspaceAutomation: false` heißt: nicht anfassen, ohne zu fragen.** `templates:sync`,
+`:publish`, `:verify` und `:display-names` wirken nur auf Targets mit `workspaceAutomation: true`
+(siehe `docs/railway-template-metadata.md`). Ein `false` ist meist bewusst gesetzt, weil das
+Template schon live ist und echte Downloads/Sterne hat oder weil der aktuell im Marketplace
+sichtbare Deploy-Code vom `publishedCode` in `railway-template.json` abweicht (Drift, kein Bug) -
+`pnpm marketplace:search -- "<Software>"` zeigt den tatsächlichen Live-Code. `templates:display-names:apply`
+löscht und erstellt das Template neu: Downloads/Sterne gehen auf 0, der Deploy-Code kann sich
+ändern. Bei einem frischen Template mit 0 Downloads (z. B. gerade erst veröffentlicht) ist das
+risikolos; bei einem Target mit `workspaceAutomation: false` und echten Nutzungszahlen ist es das
+nicht - dort immer erst mit dem Nutzer klären, nie die Flag stillschweigend auf `true` drehen, um
+das Skript greifen zu lassen.
 
 Fehlt der Token, brich hier nicht die ganze Aufgabe ab - melde Schritt 6 klar als offen und liefere
 alles davor fertig ab.
