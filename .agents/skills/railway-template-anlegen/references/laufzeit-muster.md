@@ -65,6 +65,30 @@ Achtung bei der Wertform: manche Software will einen reinen Port (`GF_SERVER_HTT
 andere eine vollständige Bind-Adresse (`INFLUXD_HTTP_BIND_ADDRESS=:8086`). Die CLI setzt
 `${PORT}` ein; braucht die Software einen Doppelpunkt davor, muss das nachgetragen werden.
 
+## Erstkonfiguration ohne Wizard
+
+Manche Software bringt einen interaktiven Setup-Wizard mit — und einige davon sperren sich selbst,
+wenn niemand ihn innerhalb eines Zeitfensters abschließt (CloudBeaver: 60 Minuten, danach "Server
+configuration time has expired, restart required"; Portainer CE: 5 Minuten für die Erstanmeldung).
+Auf einem headless One-Click-Deploy ist niemand da, der den Wizard rechtzeitig durchklickt — das
+Template sperrt sich beim ersten echten Nutzer von selbst. Das ist keine CloudBeaver-Eigenart,
+sondern eine Kategorie: prüfe bei jeder neuen Software, ob das Basisimage eine
+Nicht-interaktiv-Konfiguration per Env-Var unterstützt, und bevorzuge die, statt den Wizard dem
+Nutzer zu überlassen.
+
+**Den Default-Admin-Namen nie raten, sondern testen.** `CB_ADMIN_NAME=admin` klingt nach der
+naheliegenden Wahl, kollidiert bei CloudBeaver aber mit einem intern reservierten Team-Namen und
+lässt die Auto-Konfiguration mit `User or team 'admin' already exists` abstürzen — reproduzierbar
+auf einem nachweislich frischen, leeren Volume, also ein echter Upstream-Fallstrick und kein
+Altlasten-Problem. Ein einfacher, weniger generischer Name (`cbadmin`) behebt es. Der Punkt ist
+allgemein: ein sauber aussehender Auto-Konfig-Env-Var ist kein Beweis, dass er auch durchläuft —
+einmal wirklich booten und die Logs lesen, bevor der Schritt als erledigt gilt.
+
+| Software | Mechanismus | Fallstrick |
+|---|---|---|
+| CloudBeaver | `CB_SERVER_NAME`/`CB_ADMIN_NAME`/`CB_ADMIN_PASSWORD` | `admin` als Name kollidiert mit einem reservierten Team |
+| Portainer CE | `--admin-password-file` (Datei, kein Klartext-Env-Var) | ohne Admin-Anlage in 5 Min. sperrt sich die Instanz |
+
 ## Lookup-Tabelle
 
 Erweitere die Tabelle, wenn du ein neues Template anlegst — sie ist der Grund, warum der nächste

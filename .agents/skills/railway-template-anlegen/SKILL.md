@@ -4,14 +4,21 @@ description: >-
   Legt ein neues öffentliches Railway-Template-Repository nach dem Muster
   vergissberlin/railwayapp-* an: scaffoldet über die Hub-CLI alle Repo-Dateien inklusive
   generierter Header-Grafik, erstellt das GitHub-Repo, committet und pusht, registriert das
-  Template im Hub-Meta-Repo und veröffentlicht es im Railway-Template-Marketplace. IMMER
-  verwenden, wenn der Nutzer ein neues Railway-Template, ein neues railwayapp-Repo oder eine
-  Railway-Vorlage für eine Software anlegen, scaffolden oder veröffentlichen will - auch wenn er
-  "Template", "scaffolden" oder "publish" nicht wörtlich erwähnt und nur sagt, dass eine
-  bestimmte Software "auf Railway laufen" oder "in den Marketplace" soll.
+  Template im Hub-Meta-Repo und veröffentlicht es im Railway-Template-Marketplace. Deckt auch den
+  zweiten Fall ab: ein schon existierendes railwayapp-*-Template, das nach dem Deploy nicht
+  erreichbar ist oder einen Fehler wirft (Domain/Volume/Webhook fehlt, Reverse-Proxy-Host-
+  Vertrauen, Erstkonfigurations-Wizard mit Zeitlimit). IMMER verwenden, wenn der Nutzer ein neues
+  Railway-Template, ein neues railwayapp-Repo oder eine Railway-Vorlage für eine Software anlegen,
+  scaffolden oder veröffentlichen will - auch wenn er "Template", "scaffolden" oder "publish"
+  nicht wörtlich erwähnt und nur sagt, dass eine bestimmte Software "auf Railway laufen" oder "in
+  den Marketplace" soll - UND wenn er meldet, dass ein bestehendes railwayapp-*-Template oder ein
+  gerade darüber deploytes Railway-Projekt "nicht erreichbar" ist, einen Fehler wirft oder sich
+  komisch verhält.
   Trigger-Beispiele: 'leg ein Railway-Template für Uptime Kuma an', 'ich will Vaultwarden als
   Railway-Template', 'neues railwayapp-Repo für Plausible', 'bau ein Template für Metabase und
-  veröffentliche es', 'kann Minio in den Railway-Marketplace?'.
+  veröffentliche es', 'kann Minio in den Railway-Marketplace?', 'GitLab ist nicht erreichbar
+  https://railway.com/project/...', 'n8n gibt einen Fehler, muss da was am Template angepasst
+  werden?'.
 ---
 
 # Railway-Template anlegen und veröffentlichen
@@ -50,6 +57,11 @@ Default:
 - **Port, Healthcheck-Pfad, Datenverzeichnis**: aus der Upstream-Doku (z. B. `3000`,
   `/api/health`, `/var/lib/grafana`). Gibt es keinen echten Healthcheck-Endpoint, nimm `/` und sag
   das im Zwischenbericht.
+- **Erstkonfiguration**: hat die Software einen Setup-Wizard oder eine Erstanmeldung mit
+  Zeitlimit (z. B. CloudBeaver 60 Min., Portainer CE 5 Min.)? Wenn ja: Env-Var-Autoconfig prüfen
+  (`references/laufzeit-muster.md`, Abschnitt "Erstkonfiguration ohne Wizard") statt den Wizard
+  dem Nutzer zu überlassen — und den Default-Admin-Namen nicht raten, sondern am lebenden Boot
+  testen.
 - **Kurzbeschreibung**: schreibst du selbst, Englisch, **25-75 Zeichen nach Trim** - Railways
   `templatePublish` lehnt kürzere und längere Texte ab.
 - **Logo**: gehört zu jedem Template. Bringt das Repo keins mit, wird das offizielle Logo im
@@ -145,9 +157,22 @@ großes SVG, influxdbs 170-px-Logo nur 4 KB. Die CLI warnt ab 20 KB.
 Danach kontrollieren: README beginnt mit H1, Leerzeile, `![Template Header](./template-header.svg)`;
 `.env.example` existiert und `.env` nicht; genau ein `<!-- footer -->`-Marker.
 
+**Pflicht-Abschnitte für `templatePublish`.** Railway lehnt einen Draft ab, wenn im README diese
+fünf Überschriften fehlen — die CLI scaffoldet sie noch nicht, sie müssen von Hand ergänzt werden,
+bevor das Bestätigungs-Gate greift:
+
+| Überschrift | Inhalt |
+|---|---|
+| `# Deploy and Host <Software>` | ein bis zwei Sätze, was das Template macht |
+| `## About Hosting <Software>` | was Hosting dieser Software auf Railway konkret bedeutet |
+| `## Why Deploy <Software> on Railway` | 3-5 Stichpunkte: Vorteile ggü. Selbst-Hosting |
+| `## Common Use Cases` | 3-5 Stichpunkte: typische Einsatzszenarien |
+| `## Dependencies for <Software>` | Image, Volume, evtl. weitere Services |
+
 **Jetzt ein einziges Bestätigungs-Gate.** Zeig dem Nutzer kompakt Repo-Name, `displayName`,
 `publishedCode`, Beschreibung mit Zeichenzahl, Image plus Tag, Port-Strategie, Healthcheck- und
-Mount-Pfad. Das ist eine Review, kein Interview - danach entsteht öffentlich sichtbarer Kram.
+Mount-Pfad, sowie dass die fünf Pflicht-Abschnitte im README stehen. Das ist eine Review, kein
+Interview - danach entsteht öffentlich sichtbarer Kram.
 
 ## Schritt 4: GitHub-Repo anlegen und pushen
 
@@ -226,6 +251,19 @@ das Skript greifen zu lassen.
 Fehlt der Token, brich hier nicht die ganze Aufgabe ab - melde Schritt 6 klar als offen und liefere
 alles davor fertig ab.
 
+## Schritt 6a: Erreichbarkeit verifizieren
+
+Veröffentlicht heißt nicht erreichbar. Nach dem Publish die App einmal wirklich aufrufen -
+Healthcheck-Pfad, dann `/` - bevor der Schritt als erledigt gilt. Antwortet sie falsch oder gar
+nicht, arbeite `references/erreichbarkeit-troubleshooting.md` in Reihenfolge ab (Domain/Volume/
+Webhook zuerst, dann Reverse-Proxy-Vertrauen, dann Versions-Pinning, dann Volume-Idempotenz und
+Shell-Wipe-Hygiene) statt am Code zu raten.
+
+**Dieser Schritt ist auch der Einstiegspunkt, wenn der Nutzer nicht "leg ein neues Template an",
+sondern "X ist nicht erreichbar" für ein schon existierendes Template sagt.** Dann Schritt 0-5
+überspringen und direkt hier beginnen - die Checkliste in der Referenzdatei ist für genau diesen
+Fall gebaut.
+
 ## Schritt 7: Deploy-Code nachtragen
 
 Erst jetzt existiert der Deploy-Code. Hol ihn aus der Marketplace-URL bzw. der `templatePublish`-
@@ -251,6 +289,11 @@ aktualisieren.
 | Deployment antwortet "Application failed to respond" | `$PORT` nicht gemappt. Zurück zu Schritt 2 |
 | Submodule nicht ausgecheckt | Nur ausgecheckte Submodule lassen sich in dieser Session ändern. Als manuellen Schritt vermerken statt es zu erzwingen |
 | GitHub-Tool nicht gefunden | Über `ToolSearch` nachladen, Tool-IDs nie hartkodieren |
+| `templatePublish` lehnt Draft ab, README fehlen Abschnitte | Die fünf Pflichtüberschriften aus Schritt 3 ergänzen, dann erneut publishen |
+| Deployment antwortet 400/403, obwohl die Domain korrekt in der Config steht | `references/erreichbarkeit-troubleshooting.md`, Abschnitt 2: Host/Origin-Wert enthält oft fälschlich den internen `$PORT` statt der öffentlichen `https://<domain>` |
+| Service zeigt 0 Deployments, oder deployt sichtbar einen alten Commit | Domain/Volume fehlen, oder Webhook nie verdrahtet (Service via API/MCP statt Dashboard erzeugt) - Checkliste in `references/erreichbarkeit-troubleshooting.md`, Abschnitt 6; notfalls `serviceInstanceDeploy(latestCommit: true)` |
+| Erstkonfigurations-Wizard läuft in ein Zeitlimit oder sperrt sich | `references/laufzeit-muster.md`, Abschnitt "Erstkonfiguration ohne Wizard": Env-Var-Autoconfig prüfen, Default-Admin-Namen nicht raten |
+| `image` zeigt bei einem bestehenden Template auf `template-header.svg` statt aufs Logo | Retrofit: `image` auf `logo-<slug>.png`/`.svg` umbiegen, siehe Schritt 3 |
 
 ## Zum Schluss
 
@@ -262,8 +305,13 @@ verkaufen.
 ## Referenzen
 
 - `references/laufzeit-muster.md` — die drei `$PORT`-Strategien im Vergleich plus Lookup-Tabelle
-  Software → Bind-Variable / Healthcheck-Pfad / Datenverzeichnis. Lies das in Schritt 2.
+  Software → Bind-Variable / Healthcheck-Pfad / Datenverzeichnis, plus Erstkonfiguration-ohne-
+  Wizard-Fallstricke. Lies das in Schritt 2.
 - `references/logo-beschaffung.md` — woher das Logo kommt, wie es heißen muss, wie du Größe und
   Rechte prüfst. Lies das in Schritt 3.
+- `references/erreichbarkeit-troubleshooting.md` — Checkliste für "Template ist deployt, aber
+  nicht erreichbar": Domain/Volume/Webhook, Reverse-Proxy-Vertrauen, Versions-Pinning gegen
+  Breaking-Onboarding-Changes, Volume-Idempotenz, Shell-Wipe-Hygiene. Lies das in Schritt 6a - auch
+  wenn ein bestehendes Template repariert wird, nicht nur bei Neuanlage.
 - `docs/railway-template-metadata.md` (Hub) — Feldreferenz und Badge-Registry.
 - `docs/railway-template-publish.md` (Hub) — Publish-Troubleshooting mit allen GraphQL-Details.
