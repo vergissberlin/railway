@@ -13,3 +13,6 @@ node_modules/
 # Local cache (Railway marketplace template list)
 .cache/
 
+# Skill-creator eval run outputs (scratch, not part of the skill itself)
+.agents/skills/*-workspace/
+

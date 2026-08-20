@@ -1,0 +1,64 @@
+{
+  "skill_name": "railway-template-anlegen",
+  "evals": [
+    {
+      "id": 0,
+      "eval_name": "operately-full-pipeline",
+      "prompt": "Leg ein Railway-Template für Operately an (https://github.com/operately/operately) - ein Open-Source Projekt- und Goal-Tracking-Tool auf Elixir/Phoenix, braucht Postgres.",
+      "expected_output": "Ein gescaffoldetes railwayapp-operately Repo (auf der Platte, im Hub registriert) mit: Postgres als separater Railway-Service über eine Referenzvariable statt im selben Container; entrypoint-Runtime-Strategie wegen der nötigen Phoenix-Release-Migration vor dem eigentlichen Start; PHX_HOST (oder der äquivalente Host-Wert) aus RAILWAY_PUBLIC_DOMAIN abgeleitet, Scheme+Host ohne Port; SECRET_KEY_BASE als dokumentierte Pflichtvariable; README mit allen fünf Pflichtabschnitten; image zeigt auf ein Logo, nicht auf template-header.svg; genau ein Bestätigungs-Gate vor jeder GitHub-Aktion; Schritt 6 (Railway-Projekt/Marketplace) wird explizit als offener, manueller Schritt benannt.",
+      "files": [],
+      "assertions": [
+        {"id": "description-length", "text": "railway-template.json description is 25-75 characters after trim"},
+        {"id": "image-not-banner", "text": "railway-template.json image field does not equal template-header.svg"},
+        {"id": "logo-naming", "text": "logoFile matches logo-<slug>.(png|svg)"},
+        {"id": "dockerfile-pinned-tag", "text": "Dockerfile FROM line has an explicit version tag, not latest/stable/main"},
+        {"id": "postgres-separate-service", "text": "Postgres is treated as a separate Railway service wired via a reference variable, not baked into the app's own Dockerfile/container"},
+        {"id": "entrypoint-strategy-for-migration", "text": "entrypoint runtime strategy is chosen (railway-entrypoint.sh present) because a Phoenix release migration must run before app start, not startCommand/none"},
+        {"id": "host-trust-correct", "text": "the app's host-check env var (e.g. PHX_HOST) is derived from RAILWAY_PUBLIC_DOMAIN and does NOT have ${PORT} or a literal port number concatenated onto it"},
+        {"id": "secret-key-base-documented", "text": "SECRET_KEY_BASE is documented as a required environment variable"},
+        {"id": "readme-five-sections", "text": "README contains all five required headings (# Deploy and Host, ## About Hosting, ## Why Deploy, ## Common Use Cases, ## Dependencies) each with non-empty body text"},
+        {"id": "single-confirmation-gate", "text": "exactly one consolidated confirmation/summary block appears before any GitHub-side action is attempted or claimed"},
+        {"id": "schritt-6-honest-deferral", "text": "the run explicitly states GitHub repo creation, hub registration, and Railway project/publish as pending manual next steps rather than fabricating that they happened"},
+        {"id": "negative-no-wizard-lockout", "text": "no invented first-boot admin-wizard-lockout-timer handling is present (Operately/Phoenix has no such gate - checks for over-generalization)"}
+      ]
+    },
+    {
+      "id": 1,
+      "eval_name": "portainer-wizard-lockout",
+      "prompt": "Erstelle ein Railway-Template für Portainer CE (Docker/Container-Management-UI, https://github.com/portainer/portainer).",
+      "expected_output": "Ein gescaffoldetes railwayapp-portainer Repo. Der Agent erkennt Portainers zeitlimitiertes Erstanmelde-Fenster (Admin-Account muss innerhalb von 5 Minuten nach erstem Start angelegt werden, sonst sperrt sich die Instanz) und behandelt das entweder durch eine nicht-interaktive Admin-Provisionierung (z.B. --admin-password-file) oder durch eine unübersehbare Warnung im README/Bestätigungs-Gate. Negativ: keine erfundene trusted_proxies/external_url/allowed_hosts-Logik - Portainer hat diese Klasse von Host-Prüfung nicht.",
+      "files": [],
+      "assertions": [
+        {"id": "description-length", "text": "railway-template.json description is 25-75 characters after trim"},
+        {"id": "image-not-banner", "text": "railway-template.json image field does not equal template-header.svg"},
+        {"id": "logo-naming", "text": "logoFile matches logo-<slug>.(png|svg)"},
+        {"id": "dockerfile-pinned-tag", "text": "Dockerfile FROM line has an explicit version tag, not latest/stable/main"},
+        {"id": "wizard-lockout-addressed", "text": "the run explicitly names Portainer's timed first-login/admin-setup requirement, and either wires a non-interactive admin-provisioning mechanism or gives an unmissable warning about the time window"},
+        {"id": "negative-no-host-trust-logic", "text": "no invented trusted_proxies/external_url/allowed_hosts-style host-check logic is present (checks for over-generalization)"},
+        {"id": "readme-five-sections", "text": "README contains all five required headings each with non-empty body text"},
+        {"id": "single-confirmation-gate", "text": "exactly one consolidated confirmation/summary block appears before any GitHub-side action"},
+        {"id": "schritt-6-honest-deferral", "text": "GitHub/hub/Railway steps are named as pending, not fabricated as done"}
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "paperless-ngx-host-trust",
+      "prompt": "Ich will Paperless-ngx als Railway-Template (Django-basiertes Dokumentenmanagement, https://github.com/paperless-ngx/paperless-ngx).",
+      "expected_output": "Ein gescaffoldetes railwayapp-paperless-ngx Repo. ALLOWED_HOSTS/CSRF_TRUSTED_ORIGINS (oder die von Paperless tatsächlich verlangten Variablen) werden aus RAILWAY_PUBLIC_DOMAIN abgeleitet, Scheme+Host ohne Port. Postgres UND Redis werden als getrennte Railway-Services identifiziert (Paperless braucht beides). Ein Volume für das Medien-/Consume-Verzeichnis mit requiredMountPath. Negativ: keine erfundene Erstkonfigurations-Wizard-Zeitlimit-Behandlung - Paperless hat kein solches Gate.",
+      "files": [],
+      "assertions": [
+        {"id": "description-length", "text": "railway-template.json description is 25-75 characters after trim"},
+        {"id": "image-not-banner", "text": "railway-template.json image field does not equal template-header.svg"},
+        {"id": "logo-naming", "text": "logoFile matches logo-<slug>.(png|svg)"},
+        {"id": "dockerfile-pinned-tag", "text": "Dockerfile FROM line has an explicit version tag, not latest/stable/main"},
+        {"id": "host-trust-correct", "text": "Paperless's host-check env vars are derived from RAILWAY_PUBLIC_DOMAIN and do NOT have ${PORT} or a literal port number concatenated onto them"},
+        {"id": "dual-dependency-postgres-redis", "text": "both Postgres AND Redis are identified as separate required Railway services"},
+        {"id": "volume-for-media", "text": "a volume with requiredMountPath is declared for the media/consume/data directory"},
+        {"id": "readme-five-sections", "text": "README contains all five required headings each with non-empty body text"},
+        {"id": "single-confirmation-gate", "text": "exactly one consolidated confirmation/summary block appears before any GitHub-side action"},
+        {"id": "schritt-6-honest-deferral", "text": "GitHub/hub/Railway steps are named as pending, not fabricated as done"},
+        {"id": "negative-no-wizard-lockout", "text": "no invented first-boot admin-wizard-lockout-timer handling is present (checks for over-generalization)"}
+      ]
+    }
+  ]
+}
