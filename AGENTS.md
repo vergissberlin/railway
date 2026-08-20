@@ -8,7 +8,7 @@ This file defines project conventions for coding agents working in this reposito
 
 These rules apply to the whole workspace unless a deeper `AGENTS.md` in a subdirectory defines more specific rules for that scope.
 
-Former tool-specific configuration (Cursor rules under `.cursor/rules` / `.agents/rules`) has been merged into this file below and removed. Claude Code skills remain available under `.agents/skills/`.
+Former tool-specific configuration (Cursor rules under `.cursor/rules` / `.agents/rules`) has been merged into this file below and removed. `.agents/skills/` is the source of truth for Claude Code skills; `.claude/skills` is a symlink into it so Claude Code's project-skill discovery finds them there.
 
 ## Repository Scope Rule
 
