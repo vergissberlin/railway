@@ -112,6 +112,11 @@
       "color": "D68E42",
       "logo": "ollama"
     },
+    "railwayapp-operately": {
+      "label": "Operately",
+      "color": "3185FF",
+      "logo": "operately"
+    },
     "railwayapp-outerbase-studio": {
       "label": "Outerbase Studio",
       "color": "000000",

@@ -35,6 +35,7 @@ Each `railwayapp-*` folder is an independent Git repository included here as a G
 - `railwayapp-nodejs`
 - `railwayapp-opensearch`
 - `railwayapp-openwebui`
+- `railwayapp-operately`
 - `railwayapp-outerbase-studio`
 - `railwayapp-postgresql`
 - `railwayapp-redis`

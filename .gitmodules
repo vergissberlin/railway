@@ -76,3 +76,6 @@
 [submodule "railwayapp-cloudbeaver-ce"]
 	path = railwayapp-cloudbeaver-ce
 	url = git@github.com:vergissberlin/railwayapp-cloudbeaver-ce.git
+[submodule "railwayapp-operately"]
+	path = railwayapp-operately
+	url = git@github.com:vergissberlin/railwayapp-operately.git
