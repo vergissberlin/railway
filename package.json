@@ -33,7 +33,7 @@
   "license": "ISC",
   "packageManager": "pnpm@11.22.0",
   "dependencies": {
-    "boxen": "^8.0.1",
+    "boxen": "^9.0.0",
     "chalk": "^6.0.0",
     "dotenv": "^17.4.2"
   }
