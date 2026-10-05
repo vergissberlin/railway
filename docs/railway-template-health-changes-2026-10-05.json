@@ -1,0 +1,1274 @@
+{
+  "checkedAt": "2026-10-05T20:06:58.151Z",
+  "note": "Historical applied configuration patches; not a target registry. Values are public template defaults and generated-secret expressions, not live credentials.",
+  "templates": [
+    {
+      "id": "08675239-0ca4-4686-8fa1-58978b26c824",
+      "name": "Flowise",
+      "code": "flowise-3",
+      "health": null,
+      "repos": [
+        "railwayapp-flowise"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "e9168ba5-5002-45e7-9a38-11b475c5bd52": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "healthcheckPath": "/api/v1/ping",
+                "healthcheckTimeout": 600,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-flowise",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {
+                "FLOWISE_USERNAME": {
+                  "defaultValue": "admin",
+                  "description": "Administrator username.",
+                  "isOptional": false
+                },
+                "FLOWISE_PASSWORD": {
+                  "defaultValue": "${{secret(32)}}",
+                  "description": "Administrator password.",
+                  "isOptional": false
+                },
+                "FLOWISE_SECRETKEY_OVERWRITE": {
+                  "defaultValue": "${{secret(64)}}",
+                  "description": "Stable encryption key for persisted credentials.",
+                  "isOptional": false
+                }
+              },
+              "icon": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/flowise.svg",
+              "volumeMounts": {
+                "95d74c86-d986-4736-a097-4d80a31b3f50": {
+                  "mountPath": "/root/.flowise"
+                }
+              },
+              "networking": {
+                "serviceDomains": {
+                  "<hasDomain>": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": null
+    },
+    {
+      "id": "10828521-3a97-4424-b094-5d6449309f20",
+      "name": "Node.js",
+      "code": "nodejs-2",
+      "health": null,
+      "repos": [
+        "railwayapp-nodejs"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "e9e74ef9-bcaa-45ee-8147-c0bde18a211d": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "healthcheckPath": "/health",
+                "healthcheckTimeout": 300,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-nodejs",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {},
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-nodejs/main/logo-nodejs.svg",
+              "networking": {
+                "serviceDomains": {
+                  "<hasDomain>": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": null
+    },
+    {
+      "id": "12e92557-6f7f-4c60-b8a3-ac5b2b3cc6e3",
+      "name": "Mosquitto MQTT",
+      "code": "mosquitto-mqtt",
+      "health": 43,
+      "repos": [
+        "railwayapp-mqtt"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "c6fb3aa8-a420-42bd-a1e1-66899537d1ec": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null,
+                "healthcheckPath": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-mqtt",
+                "branch": "main"
+              },
+              "variables": {
+                "MQTT_USER": {
+                  "defaultValue": "mqtt",
+                  "description": "Broker username.",
+                  "isOptional": false
+                },
+                "MQTT_PASS": {
+                  "defaultValue": "${{secret(32)}}",
+                  "description": "Broker password.",
+                  "isOptional": false
+                },
+                "PORT": null
+              },
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-mqtt/main/template-header.svg",
+              "volumeMounts": {
+                "1c679059-6d1e-41bf-afda-52141ddcaac9": {
+                  "mountPath": "/mosquitto/data"
+                }
+              },
+              "networking": {
+                "tcpProxies": {
+                  "1883": {}
+                },
+                "serviceDomains": {
+                  "<hasDomain>": null
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": 43
+    },
+    {
+      "id": "15ca7268-e7be-479c-a22f-125c95b33f39",
+      "name": "Apache Airflow",
+      "code": "apache-airflow",
+      "health": 50,
+      "repos": [
+        "railwayapp-airflow"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "c00f3bd2-ede4-4115-927d-28f1affcbe26": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "healthcheckPath": "/api/v2/monitor/health",
+                "healthcheckTimeout": 1800,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-airflow",
+                "branch": "main",
+                "rootDirectory": null
+              },
+              "variables": {
+                "_AIRFLOW_WWW_USER_USERNAME": {
+                  "defaultValue": "admin",
+                  "description": "SimpleAuthManager administrator username.",
+                  "isOptional": false
+                },
+                "_AIRFLOW_WWW_USER_PASSWORD": {
+                  "defaultValue": "${{secret(32)}}",
+                  "description": "Seeds a persistent administrator login.",
+                  "isOptional": false
+                }
+              },
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-airflow/main/railwayapp-airflow.svg",
+              "volumeMounts": {
+                "bd191fb5-fd95-4ccf-b162-97f0928233f0": {
+                  "mountPath": "/opt/airflow/data"
+                }
+              },
+              "networking": {
+                "serviceDomains": {
+                  "<hasDomain>": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": 50
+    },
+    {
+      "id": "282617af-c958-4465-8001-3d04404c6707",
+      "name": "OpenSearch",
+      "code": "opensearch",
+      "health": null,
+      "repos": [
+        "railwayapp-opensearch"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "a2dd39db-4d77-439b-9d81-9131b44c0afb": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "healthcheckTimeout": 600,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null,
+                "healthcheckPath": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-opensearch",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {
+                "OPENSEARCH_INITIAL_ADMIN_PASSWORD": {
+                  "defaultValue": "Aa1!${{secret(32)}}",
+                  "description": "Initial strong administrator password.",
+                  "isOptional": false
+                }
+              },
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-opensearch/main/railwayapp-opensearch.svg",
+              "volumeMounts": {
+                "18ab0209-2686-41ff-a334-6e44c72e7c38": {
+                  "mountPath": "/usr/share/opensearch/data"
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": null
+    },
+    {
+      "id": "3108c93a-cf16-4dad-ab66-d12795a25919",
+      "name": "Node-RED",
+      "code": "node-red-1",
+      "health": 12,
+      "repos": [
+        "railwayapp-nodered"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "99d626ab-9b7c-4cb9-b1a5-7b974c9f86fa": {
+              "build": {
+                "builder": "RAILPACK"
+              },
+              "deploy": {
+                "startCommand": "node-red -u /data --settings /app/settings.js",
+                "healthcheckPath": "/healthz",
+                "healthcheckTimeout": 300,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-nodered",
+                "branch": "main"
+              },
+              "variables": {
+                "NODE_RED_USERNAME": {
+                  "defaultValue": "admin",
+                  "description": "Editor administrator username.",
+                  "isOptional": false
+                },
+                "NODE_RED_PASSWORD": {
+                  "defaultValue": "${{secret(32)}}",
+                  "description": "Editor administrator password.",
+                  "isOptional": false
+                },
+                "NODE_RED_CREDENTIAL_SECRET": {
+                  "defaultValue": "${{secret(64)}}",
+                  "description": "Stable encryption key for persisted credentials.",
+                  "isOptional": false
+                }
+              },
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-nodered/main/template-header.svg",
+              "volumeMounts": {
+                "ed6becdc-09a5-4175-bbcf-fec7188c868a": {
+                  "mountPath": "/data"
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": 12
+    },
+    {
+      "id": "363111d2-c469-408b-9fd4-f988ce38e0d5",
+      "name": "Grafana",
+      "code": "grafana",
+      "health": 48,
+      "repos": [
+        "railwayapp-grafana"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "48a7b555-0444-41b6-84be-a2d92d475fc3": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "healthcheckPath": "/api/health",
+                "healthcheckTimeout": 300,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-grafana",
+                "branch": "main"
+              },
+              "variables": {
+                "GF_SECURITY_ADMIN_USER": {
+                  "defaultValue": "admin",
+                  "description": "Initial administrator username.",
+                  "isOptional": false
+                },
+                "GF_SECURITY_ADMIN_PASSWORD": {
+                  "defaultValue": "${{secret(32)}}",
+                  "description": "Initial administrator password.",
+                  "isOptional": false
+                },
+                "GF_PLUGINS_PREINSTALL": {
+                  "defaultValue": "grafana-clock-panel",
+                  "description": "Compatible plugin preinstallation.",
+                  "isOptional": true
+                },
+                "GF_INSTALL_PLUGINS": null,
+                "VERSION": null,
+                "GF_SERVER_ROOT_URL": {
+                  "defaultValue": "https://${{RAILWAY_PUBLIC_DOMAIN}}",
+                  "description": "Public HTTPS URL.",
+                  "isOptional": false
+                }
+              },
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-grafana/main/logo-grafana.png",
+              "volumeMounts": {
+                "080e8de6-3fec-4ddc-b4c7-74c8a21d9e72": {
+                  "mountPath": "/var/lib/grafana"
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": 48
+    },
+    {
+      "id": "3c5ff2a6-b2d5-4a0b-9d65-21cf2f6d1be7",
+      "name": "Email",
+      "code": "email",
+      "health": 100,
+      "repos": [
+        "railwayapp-email"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "13cf0bcf-f775-41d6-8dc0-6793a4da27cc": {
+              "build": {
+                "builder": "RAILPACK"
+              },
+              "deploy": {
+                "startCommand": "npm run build && npm start",
+                "healthcheckPath": "/healthz",
+                "healthcheckTimeout": 300,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-email",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {
+                "EMAIL_API_KEY": {
+                  "defaultValue": "${{secret(32)}}",
+                  "description": "API authentication key.",
+                  "isOptional": false
+                }
+              },
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-email/main/template-header.svg"
+            }
+          }
+        }
+      },
+      "healthAfter": 100
+    },
+    {
+      "id": "47391b1c-40a9-46d7-8906-82803402f849",
+      "name": "PostgreSQL",
+      "code": "postgresql-1",
+      "health": null,
+      "repos": [
+        "railwayapp-postgresql"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "c8db038d-153e-4877-a5cc-0291894cc332": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null,
+                "healthcheckPath": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-postgresql",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {
+                "POSTGRES_PASSWORD": {
+                  "defaultValue": "${{secret(32)}}",
+                  "description": "Required on first initialization.",
+                  "isOptional": false
+                },
+                "POSTGRES_USER": {
+                  "defaultValue": "postgres",
+                  "description": "Initial database user.",
+                  "isOptional": false
+                },
+                "POSTGRES_DB": {
+                  "defaultValue": "postgres",
+                  "description": "Initial database.",
+                  "isOptional": false
+                },
+                "DATABASE_URL": {
+                  "defaultValue": "postgresql://${{POSTGRES_USER}}:${{POSTGRES_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:5432/${{POSTGRES_DB}}",
+                  "description": "Private connection URL.",
+                  "isOptional": false
+                }
+              },
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-postgresql/main/logo-postgresql.svg",
+              "volumeMounts": {
+                "87a77464-f872-4cfb-a5c3-d441dc442fc2": {
+                  "mountPath": "/var/lib/postgresql/data"
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": null
+    },
+    {
+      "id": "4863048b-7f3f-4313-8fc6-0675f7f589a5",
+      "name": "Operately",
+      "code": "operately",
+      "health": null,
+      "repos": [
+        "railwayapp-operately"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "e289eb14-524f-4aed-924e-09d93b3a6bc8": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "preDeployCommand": [
+                  "/opt/operately/bin/predeploy.sh"
+                ],
+                "healthcheckPath": "/health",
+                "healthcheckTimeout": 300,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-operately",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {},
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-operately/main/logo-operately.png"
+            }
+          }
+        }
+      },
+      "healthAfter": null
+    },
+    {
+      "id": "4b70d0b6-c5c9-44de-81be-adb687b3ca4e",
+      "name": "GitLab CE",
+      "code": "gitlab-ce",
+      "health": 0,
+      "repos": [
+        "railwayapp-gitlab"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "9577f7d6-c8eb-42f1-a688-7cd2ec5baab1": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "healthcheckPath": "/users/sign_in",
+                "healthcheckTimeout": 7200,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-gitlab",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {
+                "GITLAB_ROOT_PASSWORD": {
+                  "defaultValue": "${{secret(32)}}",
+                  "description": "Initial root password; requires at least 8 characters.",
+                  "isOptional": false
+                }
+              },
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-gitlab/main/railwayapp-gitlab.svg",
+              "volumeMounts": {
+                "d015aa3c-7c42-482e-9ffe-8a9b9476154f": {
+                  "mountPath": "/var/opt/gitlab"
+                }
+              },
+              "networking": {
+                "serviceDomains": {
+                  "<hasDomain>": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": 0
+    },
+    {
+      "id": "600896c3-2f95-4816-aafd-1afbe8fada96",
+      "name": "Redis",
+      "code": "redis-2",
+      "health": null,
+      "repos": [
+        "railwayapp-redis"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "8f5bd49c-9855-421d-87d4-29fc8f316848": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null,
+                "healthcheckPath": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-redis",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {
+                "REDIS_PASSWORD": {
+                  "defaultValue": "${{secret(32)}}",
+                  "description": "Required authenticated startup.",
+                  "isOptional": false
+                },
+                "REDIS_URL": {
+                  "defaultValue": "redis://default:${{REDIS_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:6379",
+                  "description": "Private connection URL.",
+                  "isOptional": false
+                }
+              },
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-redis/main/logo-redis.svg",
+              "volumeMounts": {
+                "78a33fcf-6c21-4f7e-b304-1191291816d7": {
+                  "mountPath": "/data"
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": null
+    },
+    {
+      "id": "62909386-04cd-4093-a58f-0dd3fadd9fd2",
+      "name": "MongoDB",
+      "code": "mongodb-1",
+      "health": null,
+      "repos": [
+        "railwayapp-mongodb"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "a740d27b-c8b3-43f4-b1e4-c9d866451267": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null,
+                "healthcheckPath": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-mongodb",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {
+                "MONGO_INITDB_ROOT_USERNAME": {
+                  "defaultValue": "admin",
+                  "description": "Initial administrator username.",
+                  "isOptional": false
+                },
+                "MONGO_INITDB_ROOT_PASSWORD": {
+                  "defaultValue": "${{secret(32)}}",
+                  "description": "Required administrator password.",
+                  "isOptional": false
+                },
+                "MONGO_URL": {
+                  "defaultValue": "mongodb://${{MONGO_INITDB_ROOT_USERNAME}}:${{MONGO_INITDB_ROOT_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:27017/?authSource=admin",
+                  "description": "Authenticated private connection URL.",
+                  "isOptional": false
+                }
+              },
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-mongodb/main/logo-mongodb.svg",
+              "volumeMounts": {
+                "c7f0bca7-4714-43a2-a4e6-2b5d016fce00": {
+                  "mountPath": "/data/db"
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": null
+    },
+    {
+      "id": "6c2bb6eb-d7af-48a6-9973-b44a52acc241",
+      "name": "Outerbase Studio",
+      "code": "outerbase-studio",
+      "health": null,
+      "repos": [
+        "railwayapp-outerbase-studio"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "5747d578-cfaa-46a4-9644-5f1ca9563f14": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "healthcheckPath": "/",
+                "healthcheckTimeout": 300,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-outerbase-studio",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {},
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-outerbase-studio/main/logo-outerbase-studio.svg"
+            }
+          }
+        }
+      },
+      "healthAfter": null
+    },
+    {
+      "id": "7b68f67c-4fc7-4196-9b98-4e36da2dc23b",
+      "name": "Home Assistant",
+      "code": "home-assistant",
+      "health": 60,
+      "repos": [
+        "railwayapp-homeassistant"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "d5b8b13f-fc1d-47a5-ac40-ff6b3b995d26": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "startCommand": "/usr/local/bin/railway-homeassistant-entrypoint",
+                "healthcheckPath": "/manifest.json",
+                "healthcheckTimeout": 1800,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-homeassistant",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {
+                "TZ": {
+                  "defaultValue": "Europe/Berlin",
+                  "description": "Timezone.",
+                  "isOptional": true
+                }
+              },
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-homeassistant/main/railwayapp-homeassistant.svg",
+              "volumeMounts": {
+                "30b8a90c-de89-4ef4-8c81-b13ac9caad0d": {
+                  "mountPath": "/config"
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": 60
+    },
+    {
+      "id": "7ef8f4e6-ea0b-42ff-bc68-f19e01a10fa0",
+      "name": "CodiMD",
+      "code": "YcOXBV",
+      "health": null,
+      "repos": [
+        "railwayapp-codimd"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "c73ec9b6-bb14-4f91-b485-759b5426beed": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "healthcheckPath": "/",
+                "healthcheckTimeout": 300,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-codimd",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {
+                "CMD_DOMAIN": {
+                  "defaultValue": "${{RAILWAY_PUBLIC_DOMAIN}}",
+                  "description": "Public domain without scheme or port.",
+                  "isOptional": false
+                }
+              },
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-codimd/main/template-header.svg",
+              "volumeMounts": {
+                "cd608f17-741f-40ee-9f8a-a888a1cfff53": {
+                  "mountPath": "/home/hackmd/app/public/uploads"
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": null
+    },
+    {
+      "id": "92e91728-859a-4372-9ba4-2c14f260f171",
+      "name": "CloudBeaver CE",
+      "code": "cloudbeaver-ce",
+      "health": null,
+      "repos": [
+        "railwayapp-cloudbeaver-ce"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "dff35f45-170a-4eda-bffc-ea6e13922d8c": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "healthcheckPath": "/",
+                "healthcheckTimeout": 300,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-cloudbeaver-ce",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {},
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-cloudbeaver-ce/main/logo-cloudbeaver-ce.svg"
+            }
+          }
+        }
+      },
+      "healthAfter": null
+    },
+    {
+      "id": "97aa1953-0baa-4895-8017-04384d8e59bb",
+      "name": "Flask",
+      "code": "flask",
+      "health": null,
+      "repos": [
+        "railwayapp-flask"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "52e1b6a5-e4bb-44cf-a25d-e4bdc1e0d655": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "healthcheckPath": "/health",
+                "healthcheckTimeout": 300,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-flask",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {},
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-flask/main/logo-flask.svg",
+              "networking": {
+                "serviceDomains": {
+                  "<hasDomain>": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": null
+    },
+    {
+      "id": "a928cc09-b51d-4e18-a34a-1705ecb1292b",
+      "name": "MJML Renderer API",
+      "code": "mjml-renderer-api",
+      "health": null,
+      "repos": [
+        "railwayapp-mjml"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "3ccd07b6-4aba-4f4b-94a7-15f599a62da1": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "healthcheckPath": "/health",
+                "healthcheckTimeout": 300,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-mjml",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {},
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-mjml/main/mjml.png"
+            }
+          }
+        }
+      },
+      "healthAfter": null
+    },
+    {
+      "id": "bf5c2ba5-bb78-4d08-973d-e71ec9eec07d",
+      "name": "n8n",
+      "code": "n8n-2",
+      "health": 0,
+      "repos": [
+        "railwayapp-n8n"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "be014e76-4c8e-4f3e-9be1-c4fbca6c7be2": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "healthcheckPath": "/healthz/readiness",
+                "healthcheckTimeout": 600,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-n8n",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {
+                "N8N_ENCRYPTION_KEY": {
+                  "defaultValue": "${{secret(64)}}",
+                  "description": "Stable encryption key for persisted workflow credentials.",
+                  "isOptional": false
+                },
+                "N8N_PROXY_HOPS": {
+                  "defaultValue": "1",
+                  "description": "Railway terminates HTTPS at its edge proxy.",
+                  "isOptional": false
+                },
+                "WEBHOOK_URL": {
+                  "defaultValue": "https://${{RAILWAY_PUBLIC_DOMAIN}}/",
+                  "description": "Public HTTPS webhook URL.",
+                  "isOptional": false
+                },
+                "N8N_EDITOR_BASE_URL": {
+                  "defaultValue": "https://${{RAILWAY_PUBLIC_DOMAIN}}",
+                  "description": "Public HTTPS editor URL.",
+                  "isOptional": false
+                }
+              },
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-n8n/main/logo-n8n.svg",
+              "volumeMounts": {
+                "ad9e9c01-4a52-48fa-b6f5-8c74cca28185": {
+                  "mountPath": "/home/node/.n8n"
+                }
+              },
+              "networking": {
+                "serviceDomains": {
+                  "<hasDomain>": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": 0
+    },
+    {
+      "id": "bf71f608-f609-4c4d-a3ab-b626b1cb246c",
+      "name": "InfluxDB",
+      "code": "influxdb-1",
+      "health": 71,
+      "repos": [
+        "railwayapp-influxdb"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "09e2caaa-f669-4953-b0b7-2ec22753b668": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "healthcheckPath": "/health",
+                "healthcheckTimeout": 300,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-influxdb",
+                "branch": "main"
+              },
+              "variables": {
+                "PORT": {
+                  "defaultValue": "8086",
+                  "description": "HTTP API port.",
+                  "isOptional": false
+                },
+                "DOCKER_INFLUXDB_INIT_MODE": {
+                  "defaultValue": "setup",
+                  "description": "Initialize only an empty data volume.",
+                  "isOptional": false
+                },
+                "DOCKER_INFLUXDB_INIT_USERNAME": {
+                  "defaultValue": "admin",
+                  "description": "Initial administrator username.",
+                  "isOptional": false
+                },
+                "DOCKER_INFLUXDB_INIT_PASSWORD": {
+                  "defaultValue": "${{secret(32)}}",
+                  "description": "Initial administrator password.",
+                  "isOptional": false
+                },
+                "DOCKER_INFLUXDB_INIT_ORG": {
+                  "defaultValue": "railway",
+                  "description": "Initial organization.",
+                  "isOptional": false
+                },
+                "DOCKER_INFLUXDB_INIT_BUCKET": {
+                  "defaultValue": "railway",
+                  "description": "Initial bucket.",
+                  "isOptional": false
+                },
+                "DOCKER_INFLUXDB_INIT_ADMIN_TOKEN": {
+                  "defaultValue": "${{secret(64)}}",
+                  "description": "Initial API token.",
+                  "isOptional": false
+                }
+              },
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-influxdb/main/template-header.svg",
+              "volumeMounts": {
+                "f9ad5f24-8ec6-42b4-bb6e-e61e465374d6": {
+                  "mountPath": "/var/lib/influxdb2"
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": 71
+    },
+    {
+      "id": "da7be53a-c0ca-4cb7-bd58-f7860eaa3895",
+      "name": "Django",
+      "code": "django",
+      "health": null,
+      "repos": [
+        "railwayapp-django"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "293de811-4c72-4954-943c-052e200636da": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "healthcheckPath": "/health/",
+                "healthcheckTimeout": 300,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-django",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {
+                "DJANGO_SECRET_KEY": {
+                  "defaultValue": "${{secret(64)}}",
+                  "description": "Application signing key.",
+                  "isOptional": false
+                }
+              },
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-django/main/logo-django.svg",
+              "networking": {
+                "serviceDomains": {
+                  "<hasDomain>": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": null
+    },
+    {
+      "id": "e4c94799-a403-41ed-a2a7-84acad697168",
+      "name": "FastAPI",
+      "code": "fastapi",
+      "health": null,
+      "repos": [
+        "railwayapp-fastapi"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "fa8effd0-148d-4ad9-bcf7-8dd551adbffe": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "healthcheckPath": "/health",
+                "healthcheckTimeout": 300,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-fastapi",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {},
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-fastapi/main/logo-fastapi.svg",
+              "networking": {
+                "serviceDomains": {
+                  "<hasDomain>": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": null
+    },
+    {
+      "id": "ee64dd01-9d84-4ead-9034-c344585e3423",
+      "name": "TYPO3 CMS",
+      "code": "typo3-cms",
+      "health": null,
+      "repos": [
+        "railwayapp-typo3"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "3859e444-edc8-45d8-a6ad-c14a3e1d5046": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "healthcheckPath": "/",
+                "healthcheckTimeout": 1800,
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-typo3",
+                "branch": "main"
+              },
+              "variables": {
+                "TYPO3_ADMIN_USERNAME": {
+                  "defaultValue": "admin",
+                  "description": "Initial administrator username.",
+                  "isOptional": false
+                },
+                "TYPO3_ADMIN_PASSWORD": {
+                  "defaultValue": "${{secret(32)}}",
+                  "description": "Initial administrator password.",
+                  "isOptional": false
+                },
+                "VERSION": null
+              },
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-typo3/main/template-header.svg",
+              "volumeMounts": {
+                "aa8d2c08-0c3f-49a9-b665-245822691af1": {
+                  "mountPath": "/var/www/html"
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": null
+    },
+    {
+      "id": "f3e9bef4-f4cb-4a15-a24d-fd18a1690d11",
+      "name": "MySQL",
+      "code": "mysql-1",
+      "health": 83,
+      "repos": [
+        "railwayapp-mysql"
+      ],
+      "patch": {
+        "config": {
+          "services": {
+            "19f1c496-48c8-4409-b1c5-68bf30a6746e": {
+              "build": {
+                "builder": "DOCKERFILE"
+              },
+              "deploy": {
+                "restartPolicyType": "ON_FAILURE",
+                "restartPolicyMaxRetries": 10,
+                "startCommand": null,
+                "healthcheckPath": null
+              },
+              "source": {
+                "repo": "vergissberlin/railwayapp-mysql",
+                "rootDirectory": null,
+                "branch": "main"
+              },
+              "variables": {
+                "MYSQL_ROOT_PASSWORD": {
+                  "defaultValue": "${{secret(32)}}",
+                  "description": "Required on first initialization.",
+                  "isOptional": false
+                },
+                "MYSQL_DATABASE": {
+                  "defaultValue": "app",
+                  "description": "Initial database.",
+                  "isOptional": false
+                },
+                "MYSQLHOST": {
+                  "defaultValue": "${{RAILWAY_PRIVATE_DOMAIN}}",
+                  "description": "Private hostname.",
+                  "isOptional": false
+                },
+                "MYSQLPORT": {
+                  "defaultValue": "3306",
+                  "description": "Database port.",
+                  "isOptional": false
+                },
+                "MYSQLUSER": {
+                  "defaultValue": "root",
+                  "description": "Database username.",
+                  "isOptional": false
+                },
+                "MYSQLPASSWORD": {
+                  "defaultValue": "${{MYSQL_ROOT_PASSWORD}}",
+                  "description": "Database password reference.",
+                  "isOptional": false
+                },
+                "MYSQLDATABASE": {
+                  "defaultValue": "${{MYSQL_DATABASE}}",
+                  "description": "Database name reference.",
+                  "isOptional": false
+                },
+                "DATABASE_URL": {
+                  "defaultValue": "mysql://${{MYSQLUSER}}:${{MYSQL_ROOT_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:3306/${{MYSQL_DATABASE}}",
+                  "description": "Private connection URL.",
+                  "isOptional": false
+                }
+              },
+              "icon": "https://raw.githubusercontent.com/vergissberlin/railwayapp-mysql/main/logo-mysql.svg",
+              "volumeMounts": {
+                "6e9218f2-6cf0-48ba-aa57-0c7c82125b39": {
+                  "mountPath": "/var/lib/mysql"
+                }
+              }
+            }
+          }
+        }
+      },
+      "healthAfter": 83
+    }
+  ]
+}
